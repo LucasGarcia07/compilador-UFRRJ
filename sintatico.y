@@ -15,8 +15,8 @@ int var_temp_qnt;
 struct atributos
 {
 	string label;
-	string traducao;
-	string tipo;
+	string trans;
+	string type;
 };
 
 int yylex(void);
@@ -49,23 +49,23 @@ string gentempcode();
 
 S 			: TK_INT_TYPE TK_MAIN '(' ')' BLOCO
 			{
-				cout << "/*Compilador FOCA*/\n" << "#include <iostream>\n#include<string.h>\n#include<stdio.h>\nint main(void)\n{\n" << $5.traducao << "\treturn 0;\n}" << endl; 
+				cout << "/*Compilador FOCA*/\n" << "#include <iostream>\n#include<string.h>\n#include<stdio.h>\nint main(void)\n{\n" << $5.trans << "\treturn 0;\n}" << endl; 
 			}
 			;
 
 BLOCO		: '{' COMANDOS '}'
 			{
-				$$.traducao = $2.traducao;
+				$$.trans = $2.trans;
 			}
 			;
 
 COMANDOS	: COMANDO COMANDOS
 			{
-				$$.traducao = $1.traducao + $2.traducao;
+				$$.trans = $1.trans + $2.trans;
 			}
 			|
 			{
-				$$.traducao = "";
+				$$.trans = "";
 			}
 			;
 
@@ -74,29 +74,144 @@ COMANDO 	: E ';'
 
 E 			: E '+' E
 			{
-				$$.label = gentempcode();
-				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + 
+				string temp = gentempcode();
+				
+				if($1.type == $3.type){
+					$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
 					" = " + $1.label + " + " + $3.label + ";\n";
+					$$.label = temp;
+				}else{
+					$$.type = "err";
+					$$.trans = "err";
+				}	
 			}
 			| E '-' E
 			{
-				$$.label = gentempcode();
-				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + 
+				string temp = gentempcode();
+				if($1.type == $3.type){
+					$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
+					" = " + $1.label + " * " + $3.label + ";\n";
+					$$.label = temp;
+				}else{
+					$$.type = "err";
+					$$.trans = "err";
+				}	
+				
+			}
+			| E '*' E
+			{
+				string temp = gentempcode();
+				if($1.type == $3.type){
+					$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
 					" = " + $1.label + " - " + $3.label + ";\n";
+					$$.label = temp;
+				}else{
+					$$.type = "err";
+					$$.trans = "err";
+				}	
+			}
+			| E '/' E
+			{
+				$$.label = gentempcode();
+				$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
+					" = " + $1.label + " / " + $3.label + ";\n";
+			}
+			| E '<' E
+			{
+				$$.label = gentempcode();
+				$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
+					" = " + $1.label + " < " + $3.label + ";\n";
+			}
+			| E '>' E
+			{
+				$$.label = gentempcode();
+				$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
+					" = " + $1.label + " > " + $3.label + ";\n";
+			}
+			| E '<=' E
+			{
+				$$.label = gentempcode();
+				$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
+					" = " + $1.label + " <= " + $3.label + ";\n";
+			}
+			| E '>=' E
+			{
+				$$.label = gentempcode();
+				$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
+					" = " + $1.label + " >=" + $3.label + ";\n";
+			}
+			| E '==' E
+			{
+				$$.label = gentempcode();
+				$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
+					" = " + $1.label + " ==" + $3.label + ";\n";
+			}
+			| E '!=' E
+			{
+				$$.label = gentempcode();
+				$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
+					" = " + $1.label + " !=" + $3.label + ";\n";
+			}
+			| E 'and' E
+			{
+				string temp = gentempcode();
+				
+				if($1.type == "bool" && $3.type == "bool"){
+					
+					$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
+						" = " + $1.label + " && " + $3.label + ";\n";
+					$$.label = temp;
+				}else{
+					$$.type = "err";
+					$$.trans = "err";
+				}
+			}
+			| E 'or' E
+			{
+				string temp = gentempcode();
+				
+				if($1.type == "bool" && $3.type == "bool"){
+					
+					$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
+						" = " + $1.label + " || " + $3.label + ";\n";
+					$$.label = temp;
+				}else{
+					$$.type = "err";
+					$$.trans = "err";
+				}
+			}
+			| E 'not' E
+			{	
+				string temp = gentempcode();
+				
+				if($2.type == "bool"){
+					$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
+					" = " + $1.label + " ! " + $3.label + ";\n";
+					$$.label = temp;
+				}else{
+					$$.type = "err";
+					$$.trans = "err";
+				}
+			}
+			| E '/' E
+			{
+				$$.label = gentempcode();
+				$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
+					" = " + $1.label + " / " + $3.label + ";\n";
 			}
 			| TK_ID '=' E
 			{
-				$$.traducao = $1.traducao + $3.traducao + "\t" + $1.label + " = " + $3.label + ";\n";
+				$$.trans = $1.trans + $3.trans + "\t" + $1.label + " = " + $3.label + ";\n";
 			}
 			| TK_NUM
 			{
 				$$.label = gentempcode();
-				$$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
+				$$.trans = "\t" + $$.label + " = " + $1.label + ";\n";
 			}
 			| TK_ID
 			{
 				$$.label = gentempcode();
-				$$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
+				$$.trans = "\t" + $$.label + " = " + $1.label + ";\n";
 			}
 			;
 
