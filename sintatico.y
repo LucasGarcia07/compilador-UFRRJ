@@ -78,7 +78,7 @@ E 			: E '+' E
 				
 				if($1.type == $3.type){
 					$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
-					" = " + $1.label + " + " + $3.label + ";\n";
+					" = " + $1.label + " + " + $3.label + $3.type + " POW " + ";\n";
 					$$.label = temp;
 				}else{
 					$$.type = "err";
@@ -90,7 +90,7 @@ E 			: E '+' E
 				string temp = gentempcode();
 				if($1.type == $3.type){
 					$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
-					" = " + $1.label + " * " + $3.label + ";\n";
+					" = " + $1.label + " - " + $3.label + ";\n";
 					$$.label = temp;
 				}else{
 					$$.type = "err";
@@ -103,7 +103,7 @@ E 			: E '+' E
 				string temp = gentempcode();
 				if($1.type == $3.type){
 					$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
-					" = " + $1.label + " - " + $3.label + ";\n";
+					" = " + $1.label + " * " + $3.label + ";\n";
 					$$.label = temp;
 				}else{
 					$$.type = "err";
@@ -152,25 +152,25 @@ E 			: E '+' E
 				$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
 					" = " + $1.label + " !=" + $3.label + ";\n";
 			}
-			| E 'and' E
+			| E TK_AND E
 			{
 				string temp = gentempcode();
-				
-				if($1.type == "bool" && $3.type == "bool"){
+
+				if(($1.type == "bool") && ($3.type == "bool")){
 					
 					$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
 						" = " + $1.label + " && " + $3.label + ";\n";
 					$$.label = temp;
 				}else{
-					$$.type = "err";
-					$$.trans = "err";
+					$$.type = "err" + $1.type + " " + $3.type + " POW";
+					
 				}
 			}
-			| E 'or' E
+			| E TK_OR E
 			{
 				string temp = gentempcode();
 				
-				if($1.type == "bool" && $3.type == "bool"){
+				if($1.type == $3.type){
 					
 					$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
 						" = " + $1.label + " || " + $3.label + ";\n";
@@ -183,8 +183,8 @@ E 			: E '+' E
 			| E 'not' E
 			{	
 				string temp = gentempcode();
-				
-				if($2.type == "bool"){
+
+				if($3.type == "bool"){
 					$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
 					" = " + $1.label + " ! " + $3.label + ";\n";
 					$$.label = temp;
@@ -192,12 +192,6 @@ E 			: E '+' E
 					$$.type = "err";
 					$$.trans = "err";
 				}
-			}
-			| E '/' E
-			{
-				$$.label = gentempcode();
-				$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
-					" = " + $1.label + " / " + $3.label + ";\n";
 			}
 			| TK_ID '=' E
 			{

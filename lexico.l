@@ -12,7 +12,7 @@ INT {DIGITO}+
 FLOAT   	{DIGITO}+(\.{DIGITO}*)?([eE][\-\+]?{DIGITO}+)?[fF]
 DOUBLE		{DIGITO}+(\.{DIGITO}*)?([eE][\-\+]?{DIGITO}+)?[dD]?
 CHAR \'({LETRA}|{INT})\'
-BOOL "true"|"false"
+BOOL 'true'|'false'
 
 ID {LETRA}({LETRA}|{INT})*
 
@@ -43,7 +43,7 @@ ID {LETRA}({LETRA}|{INT})*
 "<="        { return TK_LTE; }
 "and"       { return TK_AND; }
 "or"        { return TK_OR; }
-"not"        { return TK_NOT; }
+"not"       { return TK_NOT; }
 
 {INT}		{
     yylval.trans = "";
