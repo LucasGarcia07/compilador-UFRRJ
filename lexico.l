@@ -5,14 +5,17 @@
 
 ESPACO [ \t]
 DIGITO [0-9]
-LETRA [A-Za-z_]
+MAIUSCULA  [A-Z]
+MINUSCULA [a-z]
+LETRA {MAIUSCULA}|{MINUSCULA}
 
 DELIM {ESPACO}+
 INT {DIGITO}+
 FLOAT   	{DIGITO}+(\.{DIGITO}*)?([eE][\-\+]?{DIGITO}+)?[fF]
 DOUBLE		{DIGITO}+(\.{DIGITO}*)?([eE][\-\+]?{DIGITO}+)?[dD]?
 CHAR \'({LETRA}|{INT})\'
-BOOL 'true'|'false'
+BOOL "true"|"false"
+
 
 ID {LETRA}({LETRA}|{INT})*
 
@@ -45,7 +48,7 @@ ID {LETRA}({LETRA}|{INT})*
 "or"        { return TK_OR; }
 "not"       { return TK_NOT; }
 
-{INT}		{
+{INT}      {
     yylval.trans = "";
     yylval.label = yytext;
     yylval.type = "int";
@@ -73,6 +76,7 @@ ID {LETRA}({LETRA}|{INT})*
     return TK_CHAR;
 }
 
+
 {BOOL}      {
     yylval.trans = "";
     yylval.label = yytext;
@@ -80,12 +84,13 @@ ID {LETRA}({LETRA}|{INT})*
     return TK_BOOL;
 }
 
+
+
 {ID}		{ 
     yylval.trans = "";
     yylval.label = yytext; 
     return TK_ID; 
 }
-
 .			{ *yytext; }
 
 %%

@@ -1,4 +1,4 @@
 int main()
 {
-	false and false;
+	true or not false;
 }

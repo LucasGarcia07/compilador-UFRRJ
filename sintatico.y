@@ -30,13 +30,13 @@ string gentempcode();
 %token TK_MAIN TK_ID TK_INT_TYPE TK_FLOAT_TYPE TK_CHAR_TYPE 
 %token TK_DOUBLE_TYPE TK_LONG_TYPE TK_STRING_TYPE TK_BOOL_TYPE
 %token TK_BREAK
-%token TK_AND
-%token TK_OR
-%token TK_NOT
+%token TK_AND "and"
+%token TK_OR "or"
+%token TK_NOT "not"
 %token TK_GTE
 %token TK_LTE
 %token TK_DIFFERENCE
-%token TK_EQUAL
+%token TK_EQUAL "="
 
 %start S
 
@@ -78,7 +78,7 @@ E 			: E '+' E
 				
 				if($1.type == $3.type){
 					$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
-					" = " + $1.label + " + " + $3.label + $3.type + " POW " + ";\n";
+					" = " + $1.label + " + " + $3.label + ";\n";
 					$$.label = temp;
 				}else{
 					$$.type = "err";
@@ -152,7 +152,7 @@ E 			: E '+' E
 				$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
 					" = " + $1.label + " !=" + $3.label + ";\n";
 			}
-			| E TK_AND E
+			| E "and" E
 			{
 				string temp = gentempcode();
 
@@ -162,50 +162,75 @@ E 			: E '+' E
 						" = " + $1.label + " && " + $3.label + ";\n";
 					$$.label = temp;
 				}else{
+					$$.trans = "	|" + $1.type +"| " + $1.label+"| " + $1.trans +"\n";
 					$$.type = "err" + $1.type + " " + $3.type + " POW";
 					
 				}
 			}
-			| E TK_OR E
+			| E "or" E
 			{
 				string temp = gentempcode();
 				
-				if($1.type == $3.type){
+				if(($1.type == "bool") && ($3.type == "bool")){
 					
 					$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
-						" = " + $1.label + " || " + $3.label + ";\n";
+						" = " + $1.label + " " + " || " + $3.label + ";\n";
 					$$.label = temp;
 				}else{
 					$$.type = "err";
 					$$.trans = "err";
 				}
 			}
-			| E 'not' E
+			| "not" E
 			{	
 				string temp = gentempcode();
 
-				if($3.type == "bool"){
-					$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
-					" = " + $1.label + " ! " + $3.label + ";\n";
+				if($2.type == "bool"){
+					$$.trans = $2.trans + "\t" + $2.label + 
+					" = " + "!" + $2.label + ";\n";
 					$$.label = temp;
 				}else{
 					$$.type = "err";
 					$$.trans = "err";
 				}
 			}
+			
 			| TK_ID '=' E
 			{
+				$$.type = $3.type;
 				$$.trans = $1.trans + $3.trans + "\t" + $1.label + " = " + $3.label + ";\n";
 			}
-			| TK_NUM
-			{
-				$$.label = gentempcode();
-				$$.trans = "\t" + $$.label + " = " + $1.label + ";\n";
+			| VALUE {
+				$$.trans = $1.trans;
+				$$.label = $1.label;
+				$$.type = $1.type;
+			};
+
+VALUE       : TK_NUM {
+				string temp = gentempcode();
+				string value = $1.label;
+				
+				if ($1.type == "float") {
+					value = to_string(stof(value));
+				} else if ($1.type == "double") {
+					value = to_string(stod(value));
+				} else if ($1.type == "long") {
+					value = to_string(stol(value));
+				}
+				
+				$$.trans = "\t" + $1.type + " " + temp + " = " + value + ";\n";
+				$$.label = temp;
+			}
+			| TK_BOOL {
+				string temp = gentempcode();
+				$$.trans = "\tbool " + temp + " = " + $1.label + ";\n";
+				$$.label = temp;
 			}
 			| TK_ID
 			{
 				$$.label = gentempcode();
-				$$.trans = "\t" + $$.label + " = " + $1.label + ";\n";
+				$$.type = $1.type;
+				$$.trans = "\t" + $$.label + " teste " + $1.label + $1.type +";\n";
 			}
 			;
 
