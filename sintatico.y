@@ -19,6 +19,15 @@ struct atributos
 	string type;
 };
 
+typedef struct
+{
+	string ref;
+	string type;
+} variable;
+
+map<string,variable> variables;
+
+
 int yylex(void);
 void yyerror(string);
 string gentempcode();
@@ -26,6 +35,7 @@ string gentempcode();
 
 %token TK_FIM TK_ERROR
 %token TK_PARAM
+%token TK_STRING
 %token TK_NUM TK_CHAR TK_BOOL
 %token TK_MAIN TK_ID TK_INT_TYPE TK_FLOAT_TYPE TK_CHAR_TYPE 
 %token TK_DOUBLE_TYPE TK_LONG_TYPE TK_STRING_TYPE TK_BOOL_TYPE
@@ -33,9 +43,11 @@ string gentempcode();
 %token TK_AND "and"
 %token TK_OR "or"
 %token TK_NOT "not"
-%token TK_GTE
-%token TK_LTE
-%token TK_DIFFERENCE
+%token TK_GTE ">="
+%token TK_LTE "<="
+%token TK_GT ">"
+%token TK_LT "<"
+%token TK_DIFFERENCE "!="
 %token TK_EQUAL "="
 
 %start S
@@ -74,16 +86,15 @@ COMANDO 	: E ';'
 
 E 			: E '+' E
 			{
-				string temp = gentempcode();
+				//string temp = gentempcode();
 				
 				if($1.type == $3.type){
 					$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
 					" = " + $1.label + " + " + $3.label + ";\n";
-					$$.label = temp;
 				}else{
 					$$.type = "err";
 					$$.trans = "err";
-				}	
+				}
 			}
 			| E '-' E
 			{
@@ -116,16 +127,16 @@ E 			: E '+' E
 				$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
 					" = " + $1.label + " / " + $3.label + ";\n";
 			}
-			| E '<' E
+			| E "<" E
 			{
 				$$.label = gentempcode();
-				$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
+				$$.trans = $1.trans + $3.trans + "\t" + "bool " + $$.label + 
 					" = " + $1.label + " < " + $3.label + ";\n";
 			}
-			| E '>' E
+			| E ">" E
 			{
 				$$.label = gentempcode();
-				$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
+				$$.trans = $1.trans + $3.trans + "\t" + "bool " + $$.label + 
 					" = " + $1.label + " > " + $3.label + ";\n";
 			}
 			| E '<=' E
@@ -162,9 +173,7 @@ E 			: E '+' E
 						" = " + $1.label + " && " + $3.label + ";\n";
 					$$.label = temp;
 				}else{
-					$$.trans = "	|" + $1.type +"| " + $1.label+"| " + $1.trans +"\n";
-					$$.type = "err" + $1.type + " " + $3.type + " POW";
-					
+					yyerror("and operator expectates a boolean values.");
 				}
 			}
 			| E "or" E
@@ -177,8 +186,7 @@ E 			: E '+' E
 						" = " + $1.label + " " + " || " + $3.label + ";\n";
 					$$.label = temp;
 				}else{
-					$$.type = "err";
-					$$.trans = "err";
+					yyerror("or operator expectates a boolean values.");
 				}
 			}
 			| "not" E
@@ -190,6 +198,7 @@ E 			: E '+' E
 					" = " + "!" + $2.label + ";\n";
 					$$.label = temp;
 				}else{
+					yyerror("Not operator expectates a boolean value.");
 					$$.type = "err";
 					$$.trans = "err";
 				}
@@ -197,16 +206,80 @@ E 			: E '+' E
 			
 			| TK_ID '=' E
 			{
-				$$.type = $3.type;
-				$$.trans = $1.trans + $3.trans + "\t" + $1.label + " = " + $3.label + ";\n";
+				if (variables.find($1.label) != variables.end()){
+					variable current = variables[$1.label];
+					
+					if(current.type == $3.type){
+						$$.type = $3.type;
+						$$.trans = $1.trans + $3.trans  + "\t" + $1.label + " = " + $3.label + ";\n";
+					}else
+					{
+						yyerror($3.type + " value is being assigned to a " + current.type + " variable.");
+					}
+					
+				
+				}else
+				{
+					variables[$1.label] = {$1.trans, $3.type};
+					$$.type = $3.type;
+					$$.trans = $1.trans + $3.trans  + "\t" + $3.type + " " + $1.label + " = " + $3.label + ";\n";
+				}
 			}
+			| '('TYPE')' E{
+				string temp = gentempcode();
+
+				if($4.type == "string" || $4.type == "char")
+				{
+					yyerror("There isn't a native cast to string or char types!");
+				}
+				
+				$$.trans = $4.trans + "\t" + $2.type + " " + temp + " = " + "(" + $2.trans + ") " + $4.label + ";\n";
+				$$.label = temp;
+				$$.type = $2.trans;
+			}
+			| TK_ID '=' '('TYPE')' E {
+				cout << "TESTANDO";
+				if (variables.find($1.label) != variables.end()){
+					variable current = variables[$1.label];
+					
+					if(current.type == $3.type){
+						$$.type = $3.type;
+						$$.trans = $1.trans + $3.trans  + "\t" + $1.label + " = " + $3.label + ";\n";
+					}else
+					{
+						yyerror($3.type + " value is being assigned to a " + current.type + " variable.");
+					}
+					
+				
+				}else
+				{
+					variables[$1.label] = {$1.trans, $3.type};
+					$$.type = $3.type;
+					$$.trans = $1.trans + $6.trans  + "\t" + $4.trans + " " + $1.label + " = " + "(" + $4.trans + ") " + $6.label + ";\n";
+				}
+			}
+
+			
 			| VALUE {
 				$$.trans = $1.trans;
 				$$.label = $1.label;
 				$$.type = $1.type;
 			};
 
-VALUE       : TK_NUM {
+TYPE 		: TK_INT_TYPE
+			| TK_FLOAT_TYPE
+			| TK_DOUBLE_TYPE
+			| TK_LONG_TYPE
+			| TK_CHAR_TYPE
+			| TK_STRING_TYPE
+			| TK_BOOL_TYPE;
+
+VALUE       : TK_STRING
+			{
+				$$.label = gentempcode();
+				$$.trans = "\t" + $1.type + " " + $$.label + " = " + $1.label + ";\n";
+			}
+			| TK_NUM {
 				string temp = gentempcode();
 				string value = $1.label;
 				
@@ -216,8 +289,7 @@ VALUE       : TK_NUM {
 					value = to_string(stod(value));
 				} else if ($1.type == "long") {
 					value = to_string(stol(value));
-				}
-				
+				}	
 				$$.trans = "\t" + $1.type + " " + temp + " = " + value + ";\n";
 				$$.label = temp;
 			}
@@ -229,11 +301,8 @@ VALUE       : TK_NUM {
 			| TK_ID
 			{
 				$$.label = gentempcode();
-				$$.type = $1.type;
-				$$.trans = "\t" + $$.label + " teste " + $1.label + $1.type +";\n";
-			}
-			;
-
+				$$.trans = "\t" + $$.label + " = " + $1.label + ";\n";
+			};
 %%
 
 #include "lex.yy.c"
@@ -257,6 +326,6 @@ int main(int argc, char* argv[])
 
 void yyerror(string MSG)
 {
-	cout << MSG << endl;
+	cout << "At line " + to_string(yylineno - 1) + ": " + MSG <<endl;
 	exit (0);
 }				

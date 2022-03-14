@@ -1,6 +1,5 @@
 %{
 #include <string>
-
 %}
 
 ESPACO [ \t]
@@ -10,10 +9,11 @@ MINUSCULA [a-z]
 LETRA {MAIUSCULA}|{MINUSCULA}
 
 DELIM {ESPACO}+
-INT {DIGITO}+
+INT {DIGITO}*
 FLOAT   	{DIGITO}+(\.{DIGITO}*)?([eE][\-\+]?{DIGITO}+)?[fF]
 DOUBLE		{DIGITO}+(\.{DIGITO}*)?([eE][\-\+]?{DIGITO}+)?[dD]?
 CHAR \'({LETRA}|{INT})\'
+STRING \"(({LETRA}|{DIGITO})*)\"
 BOOL "true"|"false"
 
 
@@ -21,7 +21,7 @@ ID {LETRA}({LETRA}|{INT})*
 
 %%
 
-"\n"		{}
+[\n]        {yylineno++;}
 
 {DELIM} 	{}
 
@@ -39,14 +39,25 @@ ID {LETRA}({LETRA}|{INT})*
 
 [+\-*/]		{ return *yytext; }
 
+
+
 "="		    { return '='; }
 "=="        { return TK_EQUAL; }
 "!="        { return TK_DIFFERENCE; }
 ">="        { return TK_GTE; }
 "<="        { return TK_LTE; }
+">"         { return TK_GT; }
+"<"         { return TK_LT; }
 "and"       { return TK_AND; }
 "or"        { return TK_OR; }
 "not"       { return TK_NOT; }
+
+{STRING} {
+    yylval.trans = "";
+    yylval.label = yytext;
+    yylval.type = "string";
+    return TK_STRING;
+}
 
 {INT}      {
     yylval.trans = "";
