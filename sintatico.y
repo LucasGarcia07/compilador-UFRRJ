@@ -86,21 +86,21 @@ COMANDO 	: E ';'
 
 E 			: E '+' E
 			{
-				//string temp = gentempcode();
+				string temp = gentempcode();
 				
 				if($1.type == $3.type){
-					$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
+					$$.trans = $1.trans + $3.trans + "\t" + temp + 
 					" = " + $1.label + " + " + $3.label + ";\n";
+					$$.label = temp
 				}else{
-					$$.type = "err";
-					$$.trans = "err";
+					yyerror("+ operator expectates a values with the same type.");
 				}
 			}
 			| E '-' E
 			{
 				string temp = gentempcode();
 				if($1.type == $3.type){
-					$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
+					$$.trans = $1.trans + $3.trans + "\t" + temp + 
 					" = " + $1.label + " - " + $3.label + ";\n";
 					$$.label = temp;
 				}else{
@@ -113,7 +113,7 @@ E 			: E '+' E
 			{
 				string temp = gentempcode();
 				if($1.type == $3.type){
-					$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
+					$$.trans = $1.trans + $3.trans + "\t" + temp + 
 					" = " + $1.label + " * " + $3.label + ";\n";
 					$$.label = temp;
 				}else{
@@ -124,7 +124,7 @@ E 			: E '+' E
 			| E '/' E
 			{
 				$$.label = gentempcode();
-				$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
+				$$.trans = $1.trans + $3.trans + "\t" + temp + 
 					" = " + $1.label + " / " + $3.label + ";\n";
 			}
 			| E "<" E
