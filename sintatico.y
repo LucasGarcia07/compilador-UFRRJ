@@ -89,9 +89,9 @@ E 			: E '+' E
 				string temp = gentempcode();
 				
 				if($1.type == $3.type){
-					$$.trans = $1.trans + $3.trans + "\t" + temp + 
+					$$.trans = $1.trans + $3.trans + "\t" + $1.type + " " + temp + 
 					" = " + $1.label + " + " + $3.label + ";\n";
-					$$.label = temp
+					$$.label = temp;
 				}else{
 					yyerror("+ operator expectates a values with the same type.");
 				}
@@ -100,7 +100,7 @@ E 			: E '+' E
 			{
 				string temp = gentempcode();
 				if($1.type == $3.type){
-					$$.trans = $1.trans + $3.trans + "\t" + temp + 
+					$$.trans = $1.trans + $3.trans + "\t" + $1.type + " " +  temp + 
 					" = " + $1.label + " - " + $3.label + ";\n";
 					$$.label = temp;
 				}else{
@@ -113,7 +113,7 @@ E 			: E '+' E
 			{
 				string temp = gentempcode();
 				if($1.type == $3.type){
-					$$.trans = $1.trans + $3.trans + "\t" + temp + 
+					$$.trans = $1.trans + $3.trans + "\t" + $1.type + " " + temp + 
 					" = " + $1.label + " * " + $3.label + ";\n";
 					$$.label = temp;
 				}else{
@@ -123,9 +123,11 @@ E 			: E '+' E
 			}
 			| E '/' E
 			{
-				$$.label = gentempcode();
-				$$.trans = $1.trans + $3.trans + "\t" + temp + 
-					" = " + $1.label + " / " + $3.label + ";\n";
+				string temp = gentempcode();
+				
+				$$.trans = $1.trans + $3.trans + "\t" + $1.type + " " + temp +  " = " + $1.label + " / " + $3.label + ";\n";
+
+				$$.label = temp;
 			}
 			| E "<" E
 			{
