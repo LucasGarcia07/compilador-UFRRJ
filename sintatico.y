@@ -104,8 +104,7 @@ E 			: E '+' E
 					" = " + $1.label + " - " + $3.label + ";\n";
 					$$.label = temp;
 				}else{
-					$$.type = "err";
-					$$.trans = "err";
+					yyerror("- operator expectates a values with the same type.");
 				}	
 				
 			}
@@ -117,17 +116,19 @@ E 			: E '+' E
 					" = " + $1.label + " * " + $3.label + ";\n";
 					$$.label = temp;
 				}else{
-					$$.type = "err";
-					$$.trans = "err";
+					yyerror("* operator expectates a values with the same type.");
 				}	
 			}
 			| E '/' E
 			{
 				string temp = gentempcode();
-				
-				$$.trans = $1.trans + $3.trans + "\t" + $1.type + " " + temp +  " = " + $1.label + " / " + $3.label + ";\n";
-
-				$$.label = temp;
+				if($1.type == $3.type){
+					$$.trans = $1.trans + $3.trans + "\t" + $1.type + " " + temp +  " = " + $1.label + " / " + $3.label + ";\n";
+					$$.label = temp;
+				}else
+				{
+					yyerror("/ operator expectates a values with the same type.");
+				}
 			}
 			| E "<" E
 			{
