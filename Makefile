@@ -18,6 +18,9 @@ teste:
 		echo "\n\033[0;31m Testing file: \033[0;32m$$i\033[0m";\
 		./glf < $$i;\
 	done
+
+real_test:
+	./glf < test.foca
 		
 clean:
 	rm y.tab.c

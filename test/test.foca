@@ -1,0 +1,4 @@
+int main()
+{
+	t = (float) 2;
+}

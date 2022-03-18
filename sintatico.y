@@ -40,21 +40,22 @@ string gentempcode();
 %token TK_MAIN TK_ID TK_INT_TYPE TK_FLOAT_TYPE TK_CHAR_TYPE 
 %token TK_DOUBLE_TYPE TK_LONG_TYPE TK_STRING_TYPE TK_BOOL_TYPE
 %token TK_BREAK
-%token TK_AND "and"
-%token TK_OR "or"
-%token TK_NOT "not"
-%token TK_GTE ">="
-%token TK_LTE "<="
-%token TK_GT ">"
-%token TK_LT "<"
-%token TK_DIFFERENCE "!="
-%token TK_EQUAL "="
+%token TK_AND
+%token TK_OR
+%token TK_NOT
+%token TK_GTE
+%token TK_LTE
+%token TK_GT
+%token TK_LT
+%token TK_DIFFERENCE
+%token TK_EQUAL
 
 %start S
 
+%left TK_LT TK_GT TK_LTE TK_GTE TK_DIFFERENCE TK_EQUAL
 %left '+' '-'
 %left '*' '/'
-%left '<' '>' TK_LTE TK_GTE TK_DIFFERENCE TK_EQUAL
+
 %left TK_AND TK_OR TK_NOT
 
 %%
@@ -89,8 +90,8 @@ E 			: E '+' E
 				string temp = gentempcode();
 				
 				if($1.type == $3.type){
-					$$.trans = $1.trans + $3.trans + "\t" + $1.type + " " + temp + 
-					" = " + $1.label + " + " + $3.label + ";\n";
+					$$.trans = $1.trans + $3.trans + "\t" + $1.type + " " +  temp + ";\n" +
+					"\t" + temp + " = " + $1.label + " + " + $3.label + ";\n";
 					$$.label = temp;
 				}else{
 					yyerror("+ operator expectates a values with the same type.");
@@ -100,8 +101,8 @@ E 			: E '+' E
 			{
 				string temp = gentempcode();
 				if($1.type == $3.type){
-					$$.trans = $1.trans + $3.trans + "\t" + $1.type + " " +  temp + 
-					" = " + $1.label + " - " + $3.label + ";\n";
+					$$.trans = $1.trans + $3.trans + "\t" + $1.type + " " +  temp + ";\n" +
+					"\t" + temp + " = " + $1.label + " - " + $3.label + ";\n";
 					$$.label = temp;
 				}else{
 					yyerror("- operator expectates a values with the same type.");
@@ -112,8 +113,8 @@ E 			: E '+' E
 			{
 				string temp = gentempcode();
 				if($1.type == $3.type){
-					$$.trans = $1.trans + $3.trans + "\t" + $1.type + " " + temp + 
-					" = " + $1.label + " * " + $3.label + ";\n";
+					$$.trans = $1.trans + $3.trans + "\t" + $1.type + " " +  temp + ";\n" +
+					"\t" + temp + " = " + $1.label + " * " + $3.label + ";\n";
 					$$.label = temp;
 				}else{
 					yyerror("* operator expectates a values with the same type.");
@@ -123,88 +124,73 @@ E 			: E '+' E
 			{
 				string temp = gentempcode();
 				if($1.type == $3.type){
-					$$.trans = $1.trans + $3.trans + "\t" + $1.type + " " + temp +  " = " + $1.label + " / " + $3.label + ";\n";
+					$$.trans = $1.trans + $3.trans + "\t" + $1.type + " " +  temp + ";\n" +
+					"\t" + temp + " = " + $1.label + " / " + $3.label + ";\n";
 					$$.label = temp;
 				}else
 				{
 					yyerror("/ operator expectates a values with the same type.");
 				}
 			}
-			| E "<" E
+			| E TK_LT E
 			{
 				$$.label = gentempcode();
 				$$.trans = $1.trans + $3.trans + "\t" + "bool " + $$.label + 
 					" = " + $1.label + " < " + $3.label + ";\n";
 			}
-			| E ">" E
+			| E TK_GT E
 			{
 				$$.label = gentempcode();
 				$$.trans = $1.trans + $3.trans + "\t" + "bool " + $$.label + 
 					" = " + $1.label + " > " + $3.label + ";\n";
 			}
-			| E '<=' E
+			| E TK_LTE E
 			{
 				$$.label = gentempcode();
 				$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
 					" = " + $1.label + " <= " + $3.label + ";\n";
 			}
-			| E '>=' E
+			| E TK_GTE E
 			{
 				$$.label = gentempcode();
 				$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
 					" = " + $1.label + " >=" + $3.label + ";\n";
 			}
-			| E '==' E
+			| E TK_EQUAL E
 			{
 				$$.label = gentempcode();
 				$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
 					" = " + $1.label + " ==" + $3.label + ";\n";
 			}
-			| E '!=' E
+			| E TK_DIFFERENCE E
 			{
 				$$.label = gentempcode();
 				$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
 					" = " + $1.label + " !=" + $3.label + ";\n";
 			}
-			| E "and" E
+			| E TK_AND E
 			{
 				string temp = gentempcode();
-
-				if(($1.type == "bool") && ($3.type == "bool")){
 					
-					$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
-						" = " + $1.label + " && " + $3.label + ";\n";
-					$$.label = temp;
-				}else{
-					yyerror("and operator expectates a boolean values.");
-				}
+				$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
+					" = " + $1.label + " && " + $3.label + ";\n";
+				$$.label = temp;
 			}
-			| E "or" E
+			| E TK_OR E
 			{
 				string temp = gentempcode();
-				
-				if(($1.type == "bool") && ($3.type == "bool")){
 					
-					$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
-						" = " + $1.label + " " + " || " + $3.label + ";\n";
-					$$.label = temp;
-				}else{
-					yyerror("or operator expectates a boolean values.");
-				}
+				$$.trans = $1.trans + $3.trans + "\t" + $$.label + 
+					" = " + $1.label + " " + " || " + $3.label + ";\n";
+				$$.label = temp;
 			}
-			| "not" E
+			| TK_NOT E
 			{	
 				string temp = gentempcode();
 
-				if($2.type == "bool"){
-					$$.trans = $2.trans + "\t" + $2.label + 
-					" = " + "!" + $2.label + ";\n";
-					$$.label = temp;
-				}else{
-					yyerror("Not operator expectates a boolean value.");
-					$$.type = "err";
-					$$.trans = "err";
-				}
+				$$.trans = $2.trans + "\t" + $2.label + 
+				" = " + "!" + $2.label + ";\n";
+				$$.label = temp;
 			}
 			
 			| TK_ID '=' E
@@ -236,12 +222,11 @@ E 			: E '+' E
 					yyerror("There isn't a native cast to string or char types!");
 				}
 				
-				$$.trans = $4.trans + "\t" + $2.type + " " + temp + " = " + "(" + $2.trans + ") " + $4.label + ";\n";
+				$$.trans = $4.trans + "\t" + $2.type + " " + temp + ";\n" + "\t" + temp + " = " + "(" + $2.trans + ") " + $4.label + ";\n";
 				$$.label = temp;
 				$$.type = $2.trans;
 			}
 			| TK_ID '=' '('TYPE')' E {
-				cout << "TESTANDO";
 				if (variables.find($1.label) != variables.end()){
 					variable current = variables[$1.label];
 					
@@ -280,7 +265,7 @@ TYPE 		: TK_INT_TYPE
 VALUE       : TK_STRING
 			{
 				$$.label = gentempcode();
-				$$.trans = "\t" + $1.type + " " + $$.label + " = " + $1.label + ";\n";
+				$$.trans = "\t" + $1.type + " " + $$.label + ";\n" + "\t" + $$.label + " = " + $1.label + ";\n";
 			}
 			| TK_NUM {
 				string temp = gentempcode();
@@ -293,12 +278,17 @@ VALUE       : TK_STRING
 				} else if ($1.type == "long") {
 					value = to_string(stol(value));
 				}	
-				$$.trans = "\t" + $1.type + " " + temp + " = " + value + ";\n";
+				$$.trans = "\t" + $1.type + " " + temp + ";\n" + "\t" + temp + " = " + value + ";\n";
 				$$.label = temp;
 			}
 			| TK_BOOL {
 				string temp = gentempcode();
-				$$.trans = "\tbool " + temp + " = " + $1.label + ";\n";
+				if($1.label == "falso"){
+					$1.label = "0";
+				}else{
+					$1.label = "1";
+				}
+				$$.trans = "\tint " + temp + " = " + $1.label + ";\n";
 				$$.label = temp;
 			}
 			| TK_ID

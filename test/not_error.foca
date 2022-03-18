@@ -1,4 +1,4 @@
 int main()
 {
-    not 23;
+    not 1.0;
 }

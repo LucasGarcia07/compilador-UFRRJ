@@ -1,4 +1,4 @@
 int main()
 {
-	t = (int) "2";
+	t = 2.0 + 4.0 * (float) 5;
 }
