@@ -2,26 +2,26 @@
 #include <string>
 %}
 
-ESPACO [ \t]
-DIGITO [0-9]
-MAIUSCULA  [A-Z]
-MINUSCULA [a-z]
-LETRA {MAIUSCULA}|{MINUSCULA}
+ESPACO      [ \t]
+DIGITO      [0-9]
+MAIUSCULA   [A-Z]
+MINUSCULA   [a-z]
+LETRA       {MAIUSCULA}|{MINUSCULA}
 
-DELIM {ESPACO}+
-INT {DIGITO}+
-FLOAT   	{DIGITO}+(\.{DIGITO}*)?([eE][\-\+]?{DIGITO}+)?[fF]
-DOUBLE		{DIGITO}+(\.{DIGITO}*)?([eE][\-\+]?{DIGITO}+)?[dD]?
-CHAR \'({LETRA}|{INT})\'
-STRING \"(({LETRA}|{DIGITO})*)\"
-BOOL "true"|"false"
+DELIM       {ESPACO}+
+INT         {DIGITO}+
+FLOAT       {DIGITO}+(\.{DIGITO}*)?([eE][\-\+]?{DIGITO}+)?[fF]
+DOUBLE	    {DIGITO}+(\.{DIGITO}*)?([eE][\-\+]?{DIGITO}+)?[dD]?
+CHAR        \'({LETRA}|{INT})\'
+STRING      \"(({LETRA}|{DIGITO})*)\"
+BOOL        "true"|"false"
 
 
-ID {LETRA}({LETRA}|{INT})*
+ID          {LETRA}({LETRA}|{INT})*
 
 %%
 
-[\n]        {yylineno++;}
+[\n]        { yylineno++; }
 
 {DELIM} 	{}
 
@@ -38,8 +38,6 @@ ID {LETRA}({LETRA}|{INT})*
 [(){}[\];,]	{ return *yytext; }
 
 [+\-*/]		{ return *yytext; }
-
-
 
 "="		    { return '='; }
 "=="        { return TK_EQUAL; }
@@ -58,21 +56,22 @@ ID {LETRA}({LETRA}|{INT})*
     yylval.type = "string";
     return TK_STRING;
 }
-{INT}      {
+
+{INT} {
     yylval.trans = "";
     yylval.label = yytext;
     yylval.type = "int";
     return TK_NUM;
 }
 
-{DOUBLE}    { 
+{DOUBLE} { 
     yylval.trans = "";
     yylval.label = yytext;
     yylval.type = "double";
     return TK_NUM;
 }
 
-{FLOAT}     { 
+{FLOAT} { 
     yylval.trans = "";
     yylval.label = yytext;
     yylval.type = "float";
@@ -86,21 +85,19 @@ ID {LETRA}({LETRA}|{INT})*
     return TK_CHAR;
 }
 
-
-{BOOL}      {
+{BOOL} {
     yylval.trans = "";
     yylval.label = yytext;
     yylval.type = "bool";
     return TK_BOOL;
 }
 
-
-
-{ID}		{ 
+{ID} { 
     yylval.trans = "";
     yylval.label = yytext; 
     return TK_ID; 
 }
+
 .			{ *yytext; }
 
 %%
