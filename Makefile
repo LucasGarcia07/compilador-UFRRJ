@@ -1,8 +1,8 @@
 all: 	
 		clear
 		lex lexico.l
-		yacc -d sintatico.y
-		g++ -o glf y.tab.c -ll
+		yacc -d sintatico.y 
+		g++ -o glf -x c++ y.tab.c -ll
 		
 # Black        0;30     Dark Gray     1;30
 # Red          0;31     Light Red     1;31
@@ -13,8 +13,14 @@ all:
 # Cyan         0;36     Light Cyan    1;36
 # Light Gray   0;37     White         1;37
 
-teste:
+teste_all:
 	for i in ./test/*.foca; do\
+		echo "\n\033[0;31m Testing file: \033[0;32m$$i\033[0m";\
+		./glf < $$i;\
+	done
+	
+teste_cast:
+	for i in ./test/cast_tests/*.foca; do\
 		echo "\n\033[0;31m Testing file: \033[0;32m$$i\033[0m";\
 		./glf < $$i;\
 	done

@@ -9,7 +9,7 @@ MINUSCULA [a-z]
 LETRA {MAIUSCULA}|{MINUSCULA}
 
 DELIM {ESPACO}+
-INT {DIGITO}*
+INT {DIGITO}+
 FLOAT   	{DIGITO}+(\.{DIGITO}*)?([eE][\-\+]?{DIGITO}+)?[fF]
 DOUBLE		{DIGITO}+(\.{DIGITO}*)?([eE][\-\+]?{DIGITO}+)?[dD]?
 CHAR \'({LETRA}|{INT})\'
@@ -58,7 +58,6 @@ ID {LETRA}({LETRA}|{INT})*
     yylval.type = "string";
     return TK_STRING;
 }
-
 {INT}      {
     yylval.trans = "";
     yylval.label = yytext;

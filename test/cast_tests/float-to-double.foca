@@ -1,0 +1,5 @@
+int main()
+{
+    a = 5.f;
+    a = (double) 2.f;
+}
