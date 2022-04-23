@@ -14,17 +14,17 @@
 using namespace std;
 
 struct attributes {
-	string label; // nome da variável usada no cód. intermediário (ex: "t0")
-	string type; // tipo no código intermediário (ex: "int")
+	string label;  // nome da variável usada no cód. intermediário (ex: "t0")
+	string type;   // tipo no código intermediário (ex: "int")
 	string transl; // código intermediário (ex: "int t11 = 1;")
-	int lenght; // tamanho do vetor de char
+	int lenght;    // tamanho do vetor de char
 };
 
 typedef struct var_info {
 	string type; // tipo da variável usada no cód. intermediário (ex: "int")
 	string name; // nome da variável usada no cód. intermediário (ex: "t0")
 	int collumn; // número de colunas da matriz 
-	int line; // número de linhas na matriz
+	int line;    // número de linhas na matriz
 } var_info;
 
 string type1, type2, op, typeRes, value;
@@ -156,7 +156,6 @@ T 			: TK_INT_TYPE TK_MAIN '(' ')' BLOCK {
 				$5.transl << 
 				"\treturn 0;\n}" << endl;
 				
-				
 				ofstream code1;
 				code1.open("Testes/teste.c");
 				code1<<"#include <iostream>\n#include <string.h>\n#include <stdio.h>\nint main(void) {\n" << a << "\n" << $5.transl << "\treturn 0;\n}" << endl;
@@ -252,7 +251,7 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK {
 						"\tif (" + var + ") goto " + end + ";\n" +
 						$5.transl +
 						"\t" + end + ":";
-				}else{
+				} else{
 					// throw compile error
 					$$.type = "ERROR";
 					$$.transl = "ERROR";
@@ -274,7 +273,7 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK {
 					
 				} else {
 					// throw compile error
-					yyerror("Condicional não é um booleano");
+					yyerror("The conditional is not a boolean");
 				}
 			}
 			| RAISE_FLAG TK_WHILE '(' EXPR ')' BLOCK LOWER_FLAG{
@@ -291,7 +290,7 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK {
 						"\tgoto " + begin + ";\n" +
 						"\t" + end + ":\n";
 				}else{
-					yyerror("variável " + $4.label + "com o tipo " + $4.type + "não é booleano\n");
+					yyerror("The variable " + $4.label + " with " + $4.type + " type is not a boolean");
 				}
 			}
 			| RAISE_FLAG TK_DO BLOCK TK_WHILE '(' EXPR ')' ';' LOWER_FLAG{
@@ -331,7 +330,7 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK {
 					"\t" + end + ":\n";
 					
 				}else{
-					yyerror("variável " + $7.label + " com o tipo " + $7.type + " não é um booleano\n");
+					yyerror("The variable " + $7.label + " with " + $7.type + " type is not a boolean");
 				}
 			}
 			| RAISE_FLAG TK_SWITCH '(' EXPR ')' '{' CASE '}' {
@@ -343,7 +342,7 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK {
 					"\t" + begin + ":\n" +
 					$7.transl;
 				}else {
-					yyerror("variável " + $4.label + " com o tipo " + $4.type + "não é um inteiro\n");
+					yyerror("The variable " + $4.label + " with " + $4.type + " type is not an integer");
 				}
 			};
 			
@@ -363,7 +362,7 @@ ELSE		: TK_ELIF '(' EXPR ')' BLOCK ELSE {
 					
 				} else {
 					// throw compile error
-					yyerror("Condicional não é um booleano");
+					yyerror("Conditional is not a boolean.");
 				}
 			}
 			| TK_ELSE BLOCK {
@@ -389,7 +388,7 @@ CASE		: TK_CASE EXPR BLOCK CASE {
 					"\t" + endif + ":\n" +
 					$4.transl;
 				} else {
-					yyerror("Valor inserido não é um inteiro\n");
+					yyerror("The inserted value isn't an integer\n");
 				}
 			}
 			| TK_DEFAULT BLOCK LOWER_FLAG{
@@ -412,18 +411,17 @@ LOOP_CONTROL_MECHANISMS : TK_CONTINUE {
 								string begin = getCurrentBeginLabelContinue();
 								$$.transl = "\tgoto " + begin + ";\n";
 							} else {
-								yyerror("Mecanismo de controle de laço (continue) fora de um laço!");
+								yyerror("Loop control mechanism (continue) is out of a loop!");
 							}
 						}
 						| TK_BREAK {
 							int flag = getFlagOpenBlock();
 							
 							if(flag >= 1){
-								
 								string end = getCurrentEndLabelLoopBreak();
 								$$.transl = "\tgoto " + end + ";\n";
 							} else {
-								yyerror("Mecanismo de controle de laço (break) fora de um laço!");
+								yyerror("Loop control mechanism (break) is out of a loop!");
 							}
 						}
 						;
@@ -473,7 +471,7 @@ ATTRIBUTION	: TYPE TK_ID '=' EXPR {
 						
 							insertVar($2.label, {$1.transl, $4.label});
 						} else {
-							yyerror("Tipo de valor da expressão diferente do tipo da variável que a recebe");
+							yyerror("The expression value type is different from the target variable type");
 						}
 					} else {
 						if ($4.type == $1.transl) {
@@ -481,11 +479,11 @@ ATTRIBUTION	: TYPE TK_ID '=' EXPR {
 						
 							insertVar($2.label, {$1.transl, $4.label});
 						} else {
-							yyerror("Tipo de valor da expressão diferente do tipo da variável que a recebe");
+							yyerror("The expression value type is different from the target variable type");
 						}
 					}
 				} else {
-					yyerror("Variável " + $2.label + " já existente");
+					yyerror("Variable " + $2.label + " already exists");
 				}
 			}
 			| TK_GLOBAL TYPE TK_ID '=' EXPR {
@@ -497,10 +495,10 @@ ATTRIBUTION	: TYPE TK_ID '=' EXPR {
 						
 						insertGlobalVar($3.label, {$2.transl, $5.label});
 					} else {
-						yyerror("Variável global recebendo valor do tipo diferente do declarado");
+						yyerror("Assigning a value with a different type than the defined to the global variable");
 					}
 				} else {
-					yyerror("Variável" + $3.label + " já existe no programa");
+					yyerror("The variable " + $3.label + " already exists in the code");
 				}
 			}
 			| TK_ID '['VALUE']' '['VALUE']' '=' EXPR {
@@ -528,13 +526,13 @@ ATTRIBUTION	: TYPE TK_ID '=' EXPR {
 								$$.label = $9.label;
 							}
 						}else {
-							yyerror("Tipo da expressão diferente do tipo da matriz");
+							yyerror("Expression type different from the matrix type");
 						}
 					} else {
-						yyerror("Variável " + $1.label + " não existe");
+						yyerror("Variable " + $1.label + " does not exist");
 					}
 				} else {
-					yyerror("Valor da linha ou coluna da matriz inválio");
+					yyerror("Invalid matrix line or column value");
 				}
 			}
 			| TK_ID '['VALUE']' '=' EXPR {
@@ -560,13 +558,13 @@ ATTRIBUTION	: TYPE TK_ID '=' EXPR {
 								$$.label = $6.label;
 							}
 						}else {
-							yyerror("Tipo da expressão diferente do tipo do vetor");
+							yyerror("Expression type different from the array type.");
 						}
 					} else {
-						yyerror("Variável " + $1.label + "não existe");
+						yyerror("Variable " + $1.label + " does not exist");
 					}
 				} else {
-					yyerror("Valor da coluna do vetor, inválio");
+					yyerror("Invalid array column value");
 				}
 			}
 			| TK_ID '=' EXPR {
@@ -601,11 +599,11 @@ ATTRIBUTION	: TYPE TK_ID '=' EXPR {
 							$$.type = info->type;
 							$$.label = var;
 						} else {
-							yyerror("Conversão implícita de " + info->type + " com " + $3.type + " não permitida");
+							yyerror("Implicit conversion from " + info->type + " to " + $3.type + " is not allowed");
 						}
 					}
 				} else {
-					yyerror("Variável " + $1.label + "não existe");
+					yyerror("Variable " + $1.label + " does not exist");
 				}
 			}
 			| INCREMENT {
@@ -644,10 +642,10 @@ ATTRIBUTION_CONDITIONAL : TK_ID '=' '(' EXPR ')' TK_QUESTION TK_ID TK_ID {
 						"\t" + info->name + " = " + info3->name + ";\n" +
 						"\t" + endelse + ":\n";
 					} else {
-						yyerror("Variável " + $1.label + ", ou " + $7.label = ", ou " + $8.label + " inexistente !");
+						yyerror("Variable " + $1.label + ", or " + $7.label = ", or " + $8.label + " does not exist!");
 					}
 				} else {
-					yyerror("Expressão condicional não retorna valor booleano !");
+					yyerror("conditional expression does not return boolean value!");
 				}
 			};
 
@@ -677,7 +675,7 @@ DECLARATION : TYPE TK_ID {
 
 					}
 				} else {
-					yyerror("Variável "+ $2.label + " já existe");
+					yyerror("Variable "+ $2.label + " already exists!");
 				}
 			}
 			| TK_GLOBAL TYPE TK_ID {
@@ -697,7 +695,7 @@ DECLARATION : TYPE TK_ID {
 					$$.type = $2.transl;
 				} else {
 					// throw compile error
-					yyerror("Variável "+ $3.label + " já existe");
+					yyerror("Variable "+ $3.label + " already exists!");
 				}
 				
 			}
@@ -729,10 +727,10 @@ DECLARATION : TYPE TK_ID {
 	
 						}
 					} else {
-						yyerror("Variável "+ $2.label + " já existe");
+						yyerror("Variable "+ $2.label + " already exists!");
 					}
 				} else {
-					yyerror("Valor da linha ou coluna da matriz, inválido");
+					yyerror("Invalid matrix line or column value.");
 				}
 			}
 			| TYPE TK_ID '['VALUE']'{
@@ -760,10 +758,10 @@ DECLARATION : TYPE TK_ID {
 							$$.type = $1.transl;
 						}
 					} else {
-						yyerror("Variável "+ $2.label + " já existe");
+						yyerror("Variable "+ $2.label + " already exists");
 					}
 				} else {
-					yyerror("Valor da linha do vetor, inválido");
+					yyerror("Invalid array line value");
 				}
 			}
 			| TK_GLOBAL TYPE TK_ID '['VALUE']' '['VALUE']' {
@@ -796,10 +794,10 @@ DECLARATION : TYPE TK_ID {
 	
 						}
 					} else {
-						yyerror("Variável "+ $2.label + " já existe");
+						yyerror("Variable "+ $2.label + " already exists!");
 					}
 				} else {
-					yyerror("Valor da linha ou coluna da matriz inválido");
+					yyerror("Invalid matrix line or column value");
 				}
 			}
 			| TK_GLOBAL TYPE TK_ID '['VALUE']'{
@@ -828,10 +826,10 @@ DECLARATION : TYPE TK_ID {
 	
 						}
 					} else {
-						yyerror("Variável "+ $3.label + " já existe");
+						yyerror("Variable "+ $3.label + " already exists!");
 					}
 				} else {
-					yyerror("Valor da linha do vetor, inválido");
+					yyerror("Invalid array line value");
 				}
 			};
 
@@ -845,10 +843,10 @@ UNARIO	: TK_UNARIO TK_ID {
 						$$.transl = 
 						"\t-" + info->name + ";\n";
 					}else{
-						yyerror("Tipo da variável " + $2.label + " não é numérica");
+						yyerror("Variable " + $2.label + " type is a non-numeric");
 					}
 				}else{
-					yyerror("Variável" + $2.label + " inexistente !");
+					yyerror("Variable" + $2.label + " does not exist!");
 				}
 			}
 			;
@@ -863,16 +861,16 @@ INCREMENT	: TK_INCREMENT TK_ID {
 						$$.transl = 
 						"\t" + info->name + " = " + info->name + " + 1;\n";
 					}else{
-						yyerror("Tipo da variável " + $2.label + " não é inteiro");
+						yyerror("Variable " + $2.label + " type is not integer");
 					}
 				}else{
-					yyerror("Variável" + $2.label + " inexistente");
+					yyerror("Variable " + $2.label + " does not exist");
 				}
 			}
 			| TK_ID TK_INCREMENT {
 				var_info* info = findVar($1.label);
 				
-				if(info != nullptr){
+				if(info != nullptr) {
 					if(info->type == "int"){
 						string var = getNextVar();
 						
@@ -882,11 +880,11 @@ INCREMENT	: TK_INCREMENT TK_ID {
 						$$.type = info->type;
 						$$.transl = "\t" + var + " = " + info->name + " + 1;\n" +
 						"\t" + info->name + " = " + var + ";\n";
-					}else{
-						yyerror("Tipo da variável " + $2.label + " não é inteiro");
+					} else{
+						yyerror("Variable " + $2.label + " type is not integer");
 					}
 				}else{
-					yyerror("Variável" + $2.label + " inexistente");
+					yyerror("Variable" + $2.label + " does not exist");
 				}
 			}
 			;
@@ -901,10 +899,10 @@ DECREMENT	: TK_DECREMENT TK_ID {
 						$$.transl =
 						"\t" + info->name + " = " + info->name + " - 1;\n";
 					}else{
-						yyerror("Tipo da variável " + $2.label + " não é inteiro");
+						yyerror("Variable " + $2.label + " type is not integer");
 					}
 				}else{
-					yyerror("Variável" + $2.label + " inexistente");
+					yyerror("Variable " + $2.label + " does not exist");
 				}
 			}
 			| TK_ID TK_DECREMENT {
@@ -921,10 +919,10 @@ DECREMENT	: TK_DECREMENT TK_ID {
 						$$.transl = "\t" + var + " = " + info->name + " - 1;\n" +
 						"\t" + info->name + " = " + var + ";\n";
 					}else{
-						yyerror("Tipo da variável " + $2.label + " não é inteiro");
+						yyerror("Variable " + $2.label + " type is not integer");
 					}
 				}else{
-					yyerror("Variável" + $2.label + " inexistente");
+					yyerror("Variable " + $2.label + " does not exist");
 				}
 			}
 			;
@@ -939,10 +937,10 @@ OP_COMPOUND : TK_ID TK_MORE_EQUAL EXPR {
 						$$.transl = $1.transl + $3.transl +
 						"\t" + info->name + " = " + info->name + " + " + $3.label + ";\n";
 					}else{
-						yyerror("Tipo da variável " + $1.label + " diferente do valor '" + $3.label + " acrescido!");
+						yyerror("Variable " + $1.label + " type different from the plus '" + $3.label + "' value!");
 					}
 				}else{
-					yyerror("Variável" + $1.label + " inexistente !");
+					yyerror("Variable " + $1.label + " does not exist!");
 				}
 			}
 			| TK_ID TK_LESS_EQUAL EXPR {
@@ -955,10 +953,10 @@ OP_COMPOUND : TK_ID TK_MORE_EQUAL EXPR {
 						$$.transl = $1.transl + $3.transl +
 						"\t" + info->name + " = " + info->name + " - " + $3.label + ";\n";
 					}else{
-						yyerror("Tipo da variável " + $1.label + " diferente do valor '" + $3.label + "' acrescido!");
+						yyerror("Variable " + $1.label + " type different from the plus '" + $3.label + "' value!");
 					}
 				}else{
-					yyerror("Variável" + $1.label + " inexistente !");
+					yyerror("Variable " + $1.label + " does not exist!");
 				}
 			}
 			| TK_ID TK_MULTIPLY_EQUAL EXPR {
@@ -971,10 +969,10 @@ OP_COMPOUND : TK_ID TK_MORE_EQUAL EXPR {
 						$$.transl = $1.transl + $3.transl +
 						"\t" + info->name + " = " + info->name + " * " + $3.label + ";\n";
 					}else{
-						yyerror("Tipo da variável " + $1.label + " diferente do valor '" + $3.label + "' acrescido!");
+						yyerror("Variable " + $1.label + " type different from the plus '" + $3.label + "' value!");
 					}
 				}else{
-					yyerror("Variável" + $1.label + " inexistente !");
+					yyerror("Variable " + $1.label + " does not exist!");
 				}
 			}
 			| TK_ID TK_DIVIDE_EQUAL EXPR {
@@ -987,10 +985,10 @@ OP_COMPOUND : TK_ID TK_MORE_EQUAL EXPR {
 						$$.transl = $1.transl + $3.transl +
 						"\t" + info->name + " = " + info->name + " / " + $3.label + ";\n";
 					}else{
-						yyerror("Tipo da variável " + $1.label + " diferente do valor '" + $3.label + "' acrescido!");
+						yyerror("Variable " + $1.label + " type different from the plus '" + $3.label + "' value!");
 					}
 				}else{
-					yyerror("Variável" + $1.label + " inexistente !");
+					yyerror("Variable " + $1.label + " does not exist");
 				}
 			}
 			;
@@ -1458,7 +1456,7 @@ EXPR 		: EXPR '+' EXPR {
 					
 					$$.label = var;
 				} else {
-					yyerror("Tipo" + $1.type + " ou " + $3.type + "não possuem conversão implícita");
+					yyerror("Types " + $1.type + " or " + $3.type + " do not have implicit conversion");
 				}
 			}
 			| EXPR TK_FACTORIAL{
@@ -1487,7 +1485,7 @@ EXPR 		: EXPR '+' EXPR {
 					
 					$$.label = var;
 				} else {
-					yyerror("Tipo " + $1.type + " não possuí conversão implícita nesta expressão");
+					yyerror("Type " + $1.type + " does not have implicit conversion in this expression");
 				}
 			}
 			| VALUE {

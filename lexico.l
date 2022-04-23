@@ -5,13 +5,13 @@
 /*
 ESPACO [ \t]
 DIGITO [0-9]
-LETRA [A-Za-z_]
+LETRA  [A-Za-z_]
 
 DELIM {ESPACO}+
-NUM {DIGITO}+
-REAL {NUM}+("."{NUM}+)?
-CHAR \'({LETRA}|{NUM})\'
-ID {LETRA}({LETRA}|{NUM})*
+NUM   {DIGITO}+
+REAL  {NUM}+("."{NUM}+)?
+CHAR  \'({LETRA}|{NUM})\'
+ID    {LETRA}({LETRA}|{NUM})*
 */
 
 DIGIT		[0-9]
@@ -24,7 +24,7 @@ ALPHA		{LETTER}|{DIGIT}
 AMPERSAND	&
 
 BREAK		\r?\n
-/*Alterei o regex do espaço para qualquer quantidade de espaço*/
+/* Alterei o regex do espaço para qualquer quantidade de espaço */
 SPACE		\s+
 
 INT     	{DIGIT}+
@@ -38,7 +38,7 @@ BOOL        "true"|"false"
 ID          {ALPHA}*{LOALPHA}{ALPHA}*
 CONST       [{UPALPHA}_\-]*{UPPER}[{UPALPHA}_\-*]
 
-PARAM {ID}|({INT}|{FLOAT}|{DOUBLE})
+PARAM       {ID}|({INT}|{FLOAT}|{DOUBLE})
 
 COMMBST	    "/*"
 COMMBFN     "*/"
@@ -77,7 +77,7 @@ COMML	    "//".*\n
 "/="        { return TK_DIVIDE_EQUAL; }
 "?"         { return TK_QUESTION; }
 "exp"       { return TK_EXPONENT; }
-"!"       { return TK_FACTORIAL; }
+"!"         { return TK_FACTORIAL; }
 
 "print"     { return TK_PRINT; }
 "endl"      { return TK_ENDL; }
