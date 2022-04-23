@@ -2,102 +2,150 @@
 #include <string>
 %}
 
-ESPACO      [ \t]
-DIGITO      [0-9]
-MAIUSCULA   [A-Z]
-MINUSCULA   [a-z]
-LETRA       {MAIUSCULA}|{MINUSCULA}
+/*
+ESPACO [ \t]
+DIGITO [0-9]
+LETRA [A-Za-z_]
 
-DELIM       {ESPACO}+
-INT         {DIGITO}+
-FLOAT       {DIGITO}+(\.{DIGITO}*)?([eE][\-\+]?{DIGITO}+)?[fF]
-DOUBLE	    {DIGITO}+(\.{DIGITO}*)?([eE][\-\+]?{DIGITO}+)?[dD]?
-CHAR        \'({LETRA}|{INT})\'
-STRING      \"(({LETRA}|{DIGITO})*)\"
+DELIM {ESPACO}+
+NUM {DIGITO}+
+REAL {NUM}+("."{NUM}+)?
+CHAR \'({LETRA}|{NUM})\'
+ID {LETRA}({LETRA}|{NUM})*
+*/
+
+DIGIT		[0-9]
+LOWER		[a-z]
+UPPER		[A-Z]
+LETTER		{LOWER}|{UPPER}
+LOALPHA		{LOWER}|{DIGIT}
+UPALPHA 	{UPPER}|{DIGIT}
+ALPHA		{LETTER}|{DIGIT}
+AMPERSAND	&
+
+BREAK		\r?\n
+/*Alterei o regex do espaço para qualquer quantidade de espaço*/
+SPACE		\s+
+
+INT     	{DIGIT}+
+FLOAT   	{DIGIT}+(\.{DIGIT}*)?([eE][\-\+]?{DIGIT}+)?[fF]
+DOUBLE		{DIGIT}+(\.{DIGIT}*)?([eE][\-\+]?{DIGIT}+)?[dD]?
+LONG		{DIGIT}+[lL]
+CHAR		\'[^\'\n]\'
+STRING		\'[^\'\n]+\'|\"[^\'\n]+\"
 BOOL        "true"|"false"
 
+ID          {ALPHA}*{LOALPHA}{ALPHA}*
+CONST       [{UPALPHA}_\-]*{UPPER}[{UPALPHA}_\-*]
 
-ID          {LETRA}({LETRA}|{INT})*
+PARAM {ID}|({INT}|{FLOAT}|{DOUBLE})
+
+COMMBST	    "/*"
+COMMBFN     "*/"
+COMMB       {COMMBST}[^{COMMBFN}]*{COMMBFN}
+COMML	    "//".*\n
 
 %%
 
-[\n]        { yylineno++; }
-
-{DELIM} 	{}
+{SPACE} 	{}
 
 "main"		{ return TK_MAIN; }
 
-"int"		{ yylval.trans = yytext; return TK_INT_TYPE; }
-"float"		{ yylval.trans = yytext; return TK_FLOAT_TYPE; }
-"double"	{ yylval.trans = yytext; return TK_DOUBLE_TYPE; }
-"long"		{ yylval.trans = yytext; return TK_LONG_TYPE; }
-"char"		{ yylval.trans = yytext; return TK_CHAR_TYPE; }
-"string"	{ yylval.trans = yytext; return TK_STRING_TYPE; }
-"bool"      { yylval.trans = yytext; return TK_BOOL_TYPE; }
+"int"		{ yylval.transl = yytext; return TK_INT_TYPE; }
+"float"		{ yylval.transl = yytext; return TK_FLOAT_TYPE; }
+"double"	{ yylval.transl = yytext; return TK_DOUBLE_TYPE; }
+"long"		{ yylval.transl = yytext; return TK_LONG_TYPE; }
+"char"		{ yylval.transl = yytext; return TK_CHAR_TYPE; }
+"string"	{ yylval.transl = yytext; return TK_STRING_TYPE; }
+"bool"      { yylval.transl = yytext; return TK_BOOL_TYPE; }
 
 [(){}[\];,]	{ return *yytext; }
 
-[+\-*/]		{ return *yytext; }
+[+\-*/=><]	{ return *yytext; }
 
-"="		    { return '='; }
 "=="        { return TK_EQUAL; }
 "!="        { return TK_DIFFERENCE; }
 ">="        { return TK_GTE; }
 "<="        { return TK_LTE; }
-">"         { return TK_GT; }
-"<"         { return TK_LT; }
 "and"       { return TK_AND; }
 "or"        { return TK_OR; }
 "not"       { return TK_NOT; }
 
-{STRING} {
-    yylval.trans = "";
-    yylval.label = yytext;
-    yylval.type = "string";
-    return TK_STRING;
-}
+"+="        { return TK_MORE_EQUAL; }
+"-="        { return TK_LESS_EQUAL; }
+"*="        { return TK_MULTIPLY_EQUAL; }
+"/="        { return TK_DIVIDE_EQUAL; }
+"?"         { return TK_QUESTION; }
+"exp"       { return TK_EXPONENT; }
+"!"       { return TK_FACTORIAL; }
 
-{INT} {
-    yylval.trans = "";
+"print"     { return TK_PRINT; }
+"endl"      { return TK_ENDL; }
+"read"      { return TK_READ; }
+
+"if"        { return TK_IF; }
+"else"      { return TK_ELSE; }
+"elif"      { return TK_ELIF; }
+"while"     { return TK_WHILE; }
+"do"        { return TK_DO; }
+"for"       { return TK_FOR; }
+"switch"    { return TK_SWITCH; }
+"case"      { return TK_CASE; }
+"default"   { return TK_DEFAULT; }
+"continue"  { return TK_CONTINUE; }
+"break"     { return TK_BREAK_LOOP; }
+"global"    { return TK_GLOBAL; }
+"++"        { return TK_INCREMENT; }
+"--"        { return TK_DECREMENT; }
+
+{INT}		{
+    yylval.transl = "";
     yylval.label = yytext;
     yylval.type = "int";
     return TK_NUM;
 }
 
-{DOUBLE} { 
-    yylval.trans = "";
+{DOUBLE}    { 
+    yylval.transl = "";
     yylval.label = yytext;
     yylval.type = "double";
     return TK_NUM;
 }
 
-{FLOAT} { 
-    yylval.trans = "";
+{FLOAT}     { 
+    yylval.transl = "";
     yylval.label = yytext;
     yylval.type = "float";
     return TK_NUM;
 }
 
 {CHAR}      {
-    yylval.trans = "";
+    yylval.transl = "";
     yylval.label = yytext;
     yylval.type = "char";
     return TK_CHAR;
 }
 
-{BOOL} {
-    yylval.trans = "";
+{STRING}    {
+    yylval.transl = "";
+    yylval.label = yytext;
+    yylval.type = "string";
+    return TK_STRING;
+}
+
+{BOOL}      {
+    yylval.transl = "";
     yylval.label = yytext;
     yylval.type = "bool";
     return TK_BOOL;
 }
 
-{ID} { 
-    yylval.trans = "";
-    yylval.label = yytext; 
-    return TK_ID; 
-}
+{ID}		{ yylval.label = yytext; return TK_ID; }
+
+{BREAK}		{}
 
 .			{ *yytext; }
+
+{COMML}     {}
 
 %%

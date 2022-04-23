@@ -1,5 +1,0 @@
-int main()
-{
-    teste = 22;
-    teste = "teste"
-}

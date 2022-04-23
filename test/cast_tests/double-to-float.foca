@@ -1,5 +1,0 @@
-int main()
-{
-    a = 0.4f;
-    a = (float) 0.4;
-}
