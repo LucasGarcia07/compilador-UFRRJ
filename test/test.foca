@@ -1,5 +1,4 @@
 int main(){
-  read("aa");
-  print("bb");
+  int a = 10 exp 10;
 }
 

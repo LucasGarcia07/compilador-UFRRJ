@@ -114,5 +114,12 @@
   read("aa");
   print("bb");
 
+## Extras
+### Fatorial
+  int a = 10!;
+
+### exponenciação;
+  int a = 10 exp 10;
+
 ## Subprograma
   Não implementado
