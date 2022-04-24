@@ -158,7 +158,7 @@ T 			: TK_INT_TYPE TK_MAIN '(' ')' BLOCK {
 				
 				ofstream code1;
 				code1.open("Testes/teste.c");
-				code1<<"#include <iostream>\n#include <string.h>\n#include <stdio.h>\nint main(void) {\n" << a << "\n" << $5.transl << "\treturn 0;\n}" << endl;
+				code1 << "#include <iostream>\n#include <string.h>\n#include <stdio.h>\nint main(void) {\n" << a << "\n" << $5.transl << "\treturn 0;\n}" << endl;
 				code1.close();
 			};
 			
@@ -249,8 +249,7 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK {
 					$$.transl = $3.transl + 
 						"\t" + var + " = !" + $3.label + ";\n" +
 						"\tif (" + var + ") goto " + end + ";\n" +
-						$5.transl +
-						"\t" + end + ":";
+						$5.transl + "\t" + end + ":";
 				} else{
 					// throw compile error
 					$$.type = "ERROR";
@@ -267,9 +266,7 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK {
 					$$.transl = $3.transl + 
 						"\t" + var + " = !" + $3.label + ";\n" +
 						"\tif (" + var + ") goto " + endif + ";\n" +
-						$5.transl +
-						endif + ":\n" +
-						$6.transl;
+						$5.transl + endif + ":\n" + $6.transl;
 					
 				} else {
 					// throw compile error
@@ -286,8 +283,7 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK {
 					$$.transl = $4.transl +
 						begin + ":\t" + var + " = !" + $4.label + ";\n" + 
 						"\tif (" + var + ") goto " + end + ";\n" +
-						$6.transl +
-						"\tgoto " + begin + ";\n" +
+						$6.transl + "\tgoto " + begin + ";\n" +
 						"\t" + end + ":\n";
 				} else {
 					yyerror("The variable " + $4.label + " with " + $4.type + " type is not a boolean");
@@ -303,8 +299,7 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK {
 					
 					$$.transl = $6.transl +
 						"\t" + begin + ":\t" + var + " = !" + $6.label + ";\n" + 
-						//"\t" + begin + ":\n" +
-						$3.transl +
+						//"\t" + begin + ":\n" + $3.transl +
 						"\tif (" + var + ") goto " + begin + ";\n";
 				} else {
 					// throw compile error
@@ -324,8 +319,7 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK {
 					begin + ":"  +
 					$7.transl + "\t" + var + "= !" + $7.label + ";\n" +
 					"\tif " + '(' + var + ") goto " + end + ";\n" +
-					$9.transl + 
-					$7.transl +
+					$9.transl + $7.transl +
 					"\tgoto " + begin + ";\n" +
 					"\t" + end + ":\n";
 					
@@ -356,17 +350,13 @@ ELSE		: TK_ELIF '(' EXPR ')' BLOCK ELSE {
 					$$.transl = $3.transl + 
 						"\t" + var + " = !" + $3.label + ";\n" +
 						"\tif (" + var + ") goto " + endif + ";\n" +
-						$5.transl +
-						endif + ":\n" +
-						$6.transl;
-					
+						$5.transl + endif + ":\n" + $6.transl;
 				} else {
 					// throw compile error
 					yyerror("Conditional is not a boolean.");
 				}
 			}
 			| TK_ELSE BLOCK {
-				
 				string endelse = getEndLabel();
 				string endif = getCurrentEndLabel();
 				
@@ -384,9 +374,7 @@ CASE		: TK_CASE EXPR BLOCK CASE {
 					
 					$$.transl = $2.transl +
 					"\tif (" + varCase + " != " + $2.label + " ) goto " + endif + ";\n" +
-					$3.transl +
-					"\t" + endif + ":\n" +
-					$4.transl;
+					$3.transl + "\t" + endif + ":\n" + $4.transl;
 				} else {
 					yyerror("The inserted value isn't an integer\n");
 				}
@@ -394,8 +382,7 @@ CASE		: TK_CASE EXPR BLOCK CASE {
 			| TK_DEFAULT BLOCK LOWER_FLAG{
 				string endSwitch = getEndLabelLoop();
 				
-				$$.transl = $2.transl +
-				"\t"+ endSwitch +";\n";
+				$$.transl = $2.transl + "\t"+ endSwitch +";\n";
 			}
 			| { 
 				string endSwitch = getEndLabelLoop();
