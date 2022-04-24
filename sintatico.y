@@ -14,17 +14,17 @@
 using namespace std;
 
 struct attributes {
-	string label;  // nome da variável usada no cód. intermediário (ex: "t0")
-	string type;   // tipo no código intermediário (ex: "int")
-	string transl; // código intermediário (ex: "int t11 = 1;")
-	int lenght;    // tamanho do vetor de char
+	string label;
+	string type;
+	string transl;
+	int lenght;
 };
 
 typedef struct var_info {
-	string type; // tipo da variável usada no cód. intermediário (ex: "int")
-	string name; // nome da variável usada no cód. intermediário (ex: "t0")
-	int collumn; // número de colunas da matriz 
-	int line;    // número de linhas na matriz
+	string type; 
+	string name;
+	int collumn;
+	int line;
 } var_info;
 
 string type1, type2, op, typeRes, value;
@@ -116,7 +116,6 @@ void yyerror(string);
 %token TK_EXPONENT
 %token TK_FACTORIAL
 %token TK_CONTINUE
-%token TK_BREAK_LOOP
 %token TK_GLOBAL
 %token TK_READ
 %token TK_FUNCTION
@@ -299,7 +298,6 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK {
 					
 					$$.transl = $6.transl +
 						"\t" + begin + ":\t" + var + " = !" + $6.label + ";\n" + 
-						//"\t" + begin + ":\n" + $3.transl +
 						"\tif (" + var + ") goto " + begin + ";\n";
 				} else {
 					// throw compile error
@@ -352,7 +350,6 @@ ELSE		: TK_ELIF '(' EXPR ')' BLOCK ELSE {
 						"\tif (" + var + ") goto " + endif + ";\n" +
 						$5.transl + endif + ":\n" + $6.transl;
 				} else {
-					// throw compile error
 					yyerror("Conditional is not a boolean.");
 				}
 			}
@@ -360,10 +357,7 @@ ELSE		: TK_ELIF '(' EXPR ')' BLOCK ELSE {
 				string endelse = getEndLabel();
 				string endif = getCurrentEndLabel();
 				
-				$$.transl = $2.transl /*+ 
-					"\tgoto " + endelse + ";\n" +
-						endif + ":" + $2.transl +
-						"\n" + endelse + ":"*/;
+				$$.transl = $2.transl;
 			}
 			;
 			
@@ -420,8 +414,8 @@ READ_OR_PRINT: PRINT {
 				$$.transl = $1.transl;
 			};
 		
-PRINT		: TK_PRINT PRINT_ARGS {
-				$$.transl = "\tstd::cout" + $2.transl + ";\n";
+PRINT		: TK_PRINT '('PRINT_ARGS')' {
+				$$.transl = "\tstd::cout" + $3.transl + ";\n";
 			};
 		
 PRINT_ARGS	: PRINT_ARG PRINT_ARGS {
@@ -433,8 +427,8 @@ PRINT_ARG	: EXPR { $$.transl = " << " + $1.label; }
 			| TK_ENDL { $$.transl = " << std::endl"; }
 			;
 
-READ		: TK_READ READ_ARGS {
-				$$.transl = "\tstd::cin" + $2.transl + ";\n";
+READ		: TK_READ '('READ_ARGS')' {
+				$$.transl = "\tstd::cin" + $3.transl + ";\n";
 			};
 			
 READ_ARGS	: READ_ARG READ_ARGS {
@@ -452,7 +446,7 @@ ATTRIBUTION	: TYPE TK_ID '=' EXPR {
 					if ($1.label == "string") {
 						if ($4.type == $1.transl) {
 							decls.push_back("\tchar " + $2.transl + "[" + to_string($4.label.size()+1) + "]" + ";");
-							$$.transl = $4.transl/* + "\tstrcpy(" + $2.transl + "," + $4.transl + ");\n"*/;
+							$$.transl = $4.transl;
 							$$.type = $2.type;
 							$$.label = $2.label;
 						
@@ -496,7 +490,6 @@ ATTRIBUTION	: TYPE TK_ID '=' EXPR {
 				
 				if (line != 0 && column != 0 && line <= info->line && column <= info->collumn) {	
 					if (info != nullptr) {
-						// se tipo da expr for igual a do id
 						if (info->type == $9.type) {
 							if (info->type == "string") {
 								string var = getNextVar();
@@ -528,7 +521,6 @@ ATTRIBUTION	: TYPE TK_ID '=' EXPR {
 				
 				if (column != 0 && column <= info->collumn) {	
 					if (info != nullptr) {
-						// se tipo da expr for igual a do id
 						cout << info->type << $6.type << endl;
 						if (info->type == $6.type) {
 							if (info->type == "string") {
@@ -558,15 +550,13 @@ ATTRIBUTION	: TYPE TK_ID '=' EXPR {
 				var_info* info = findVar($1.label);
 				
 				if (info != nullptr) {
-					// se tipo da expr for igual a do id
 					if (info->type == $3.type) {
 						if (info->type == "string") {
 							string var = getNextVar();
 							cout << $1.label<< endl;
 							$$.type = $3.type;
-							//decls.push_back("\tchar " + var + "[" + to_string($3.lenght) + "]" + ";");
 							insertVar($1.label, {$3.type, $3.label});
-							$$.transl = $3.transl;// + "\tstrcpy(" + var + "," + $3.label + ");\n";
+							$$.transl = $3.transl;
 							$$.label = $1.label;
 							$$.lenght = $3.lenght;
 						} else {
@@ -578,7 +568,7 @@ ATTRIBUTION	: TYPE TK_ID '=' EXPR {
 						string var = getNextVar();
 						string resType = opMap[info->type + "=" + $3.type];
 						
-						// se conversão é permitida
+
 						if (resType.size()) {
 							$$.transl = $3.transl + "\t" + info->type + " " + 
 								var + " = (" + info->type + ") " + $3.label + ";\n\t" +
@@ -654,7 +644,6 @@ DECLARATION : TYPE TK_ID {
 					}else {
 						decls.push_back("\t" + $1.transl + " " + var + ";");
 						
-						// tá inserindo o tipo \/ ($1.transl): tirar!
 						$$.transl = "\t" + var + " = " + 
 							padraoMap[$1.transl] + ";\n";
 						$$.label = var;
@@ -675,13 +664,11 @@ DECLARATION : TYPE TK_ID {
 					
 					decls.push_back("\t" + $2.transl + " " + var + ";");
 					
-					// tá inserindo o tipo \/ ($1.transl): tirar!
 					$$.transl = "\t" + var + " = " + 
 						padraoMap[$2.transl] + ";\n";
 					$$.label = var;
 					$$.type = $2.transl;
 				} else {
-					// throw compile error
 					yyerror("Variable "+ $3.label + " already exists!");
 				}
 				
@@ -707,7 +694,6 @@ DECLARATION : TYPE TK_ID {
 							
 							decls.push_back("\t" + $1.transl + " " + var + "[" + to_string(line*column) + "]" + ";");
 							
-							// tá inserindo o tipo \/ ($1.transl): tirar!
 							$$.transl = "\t" + var + "[" + to_string( line*column ) + "];";
 							$$.label = var;
 							$$.type = $1.transl;
@@ -739,7 +725,6 @@ DECLARATION : TYPE TK_ID {
 							
 							decls.push_back("\t" + $1.transl + " " + var + "[" + to_string(column) + "]" + ";");
 							
-							// tá inserindo o tipo \/ ($1.transl): tirar!
 							$$.transl = "\t" + var + "[" + to_string( column ) + "];";
 							$$.label = var;
 							$$.type = $1.transl;
@@ -774,7 +759,6 @@ DECLARATION : TYPE TK_ID {
 							
 							decls.push_back("\t" + $1.transl + " " + var + "[" + to_string( line*column ) + "]" + ";");
 							
-							// tá inserindo o tipo \/ ($1.transl): tirar!
 							$$.transl = "\t" + var + "[" + to_string( line*column ) + "];";
 							$$.label = var;
 							$$.type = $1.transl;
@@ -806,7 +790,6 @@ DECLARATION : TYPE TK_ID {
 							
 							decls.push_back("\t" + $2.transl + " " + var + "[" + to_string(column) + "]" + ";");
 							
-							// tá inserindo o tipo \/ ($1.transl): tirar!
 							$$.transl = "\t" + var + "[" + to_string( column ) + "];";
 							$$.label = var;
 							$$.type = $2.transl;
@@ -1058,7 +1041,6 @@ EXPR 		: EXPR '+' EXPR {
 						$1.label + " - " + $3.label + ";\n";
 					$$.label = var;
 				} else {
-					// throw compile error
 					$$.type = "ERROR";
 					$$.transl = "ERROR";
 				}
@@ -1102,7 +1084,6 @@ EXPR 		: EXPR '+' EXPR {
 						$1.label + " * " + $3.label + ";\n";
 					$$.label = var;
 				} else {
-					// throw compiler error
 					$$.type = "ERROR";
 					$$.transl = "ERROR";
 				}
@@ -1138,7 +1119,6 @@ EXPR 		: EXPR '+' EXPR {
 						$1.label + " / " + $3.label + ";\n";
 					$$.label = var;
 				} else {
-					// throw compiler error
 					$$.type = "ERROR";
 					$$.transl = "ERROR";
 				}
@@ -1174,7 +1154,6 @@ EXPR 		: EXPR '+' EXPR {
 						$1.label + " < " + $3.label + ";\n";
 					$$.label = var;
 				} else {
-					// throw compiler error
 					$$.type = "ERROR";
 					$$.transl = "ERROR";
 				}
@@ -1210,7 +1189,6 @@ EXPR 		: EXPR '+' EXPR {
 						$1.label + " > " + $3.label + ";\n";
 					$$.label = var;
 				} else {
-					// throw compiler error
 					$$.type = "ERROR";
 					$$.transl = "ERROR";
 				}
@@ -1247,7 +1225,6 @@ EXPR 		: EXPR '+' EXPR {
 						$1.label + " <= " + $3.label + ";\n";
 					$$.label = var;
 				} else {
-					// throw compiler error
 					$$.type = "ERROR";
 					$$.transl = "ERROR";
 				}
@@ -1283,7 +1260,6 @@ EXPR 		: EXPR '+' EXPR {
 						"\t" + var + " = " + $1.label + " >= " + $3.label + ";\n";
 					$$.label = var;
 				} else {
-					// throw compiler error
 					$$.type = "ERROR";
 					$$.transl = "ERROR";
 				}
@@ -1319,7 +1295,6 @@ EXPR 		: EXPR '+' EXPR {
 						"\t" + var + " = " + $1.label + " == " + $3.label + ";\n";
 					$$.label = var;
 				} else {
-					// throw compiler error
 					$$.type = "ERROR";
 					$$.transl = "ERROR";
 				}
@@ -1355,7 +1330,6 @@ EXPR 		: EXPR '+' EXPR {
 						"\t" + var + " = " + $1.label + " !== " + $3.label + ";\n";
 					$$.label = var;
 				} else {
-					// throw compiler error
 					$$.type = "ERROR";
 					$$.transl = "ERROR";
 				}
@@ -1369,7 +1343,6 @@ EXPR 		: EXPR '+' EXPR {
 						"\t" + var + " = " + $1.label + " && " + $3.label + ";\n";
 					$$.label = var;
 				} else {
-					// throw compile error
 					$$.type = "ERROR";
 					$$.transl = "ERROR";
 				}

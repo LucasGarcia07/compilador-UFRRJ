@@ -2,18 +2,6 @@
 #include <string>
 %}
 
-/*
-ESPACO [ \t]
-DIGITO [0-9]
-LETRA  [A-Za-z_]
-
-DELIM {ESPACO}+
-NUM   {DIGITO}+
-REAL  {NUM}+("."{NUM}+)?
-CHAR  \'({LETRA}|{NUM})\'
-ID    {LETRA}({LETRA}|{NUM})*
-*/
-
 DIGIT		[0-9]
 LOWER		[a-z]
 UPPER		[A-Z]
@@ -24,7 +12,6 @@ ALPHA		{LETTER}|{DIGIT}
 AMPERSAND	&
 
 BREAK		\r?\n
-/* Alterei o regex do espaço para qualquer quantidade de espaço */
 SPACE		\s+
 
 INT     	{DIGIT}+
@@ -93,7 +80,7 @@ COMML	    "//".*\n
 "case"      { return TK_CASE; }
 "default"   { return TK_DEFAULT; }
 "continue"  { return TK_CONTINUE; }
-"break"     { return TK_BREAK_LOOP; }
+"break"     { return TK_BREAK; }
 "global"    { return TK_GLOBAL; }
 "++"        { return TK_INCREMENT; }
 "--"        { return TK_DECREMENT; }
