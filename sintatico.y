@@ -181,11 +181,11 @@ RAISE_FLAG	: {
 				string begin = getBeginLabelLoop();
 				string end = getEndLabelLoop();
 				
-				if(getFlagOpenBlock() == 1 && controlTiesContinue != beginGenLoop){
+				if (getFlagOpenBlock() == 1 && controlTiesContinue != beginGenLoop) {
 					setBeginLabelLoop(controlTiesContinue);
 				}
 				
-				if(getFlagOpenBlock() == 1 && controlTiesBreak != endGenLoop){
+				if (getFlagOpenBlock() == 1 && controlTiesBreak != endGenLoop) {
 					setEndLabelLoop(controlTiesBreak);
 				}
 				
@@ -240,7 +240,7 @@ STATEMENT 	: EXPR ';' {
 			;
 
 CONDITIONAL : TK_IF '(' EXPR ')' BLOCK {
-				if($3.type == "bool"){
+				if ($3.type == "bool") {
 					string end = getEndLabel();
 					string var = getNextVar();
 					
@@ -277,7 +277,7 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK {
 				}
 			}
 			| RAISE_FLAG TK_WHILE '(' EXPR ')' BLOCK LOWER_FLAG{
-				if($4.type == "bool"){
+				if ($4.type == "bool") {
 					string var = getNextVar();
 					string begin = getCurrentBeginLabelLoop();
 					string end = getCurrentEndLabelLoop();
@@ -289,12 +289,12 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK {
 						$6.transl +
 						"\tgoto " + begin + ";\n" +
 						"\t" + end + ":\n";
-				}else{
+				} else {
 					yyerror("The variable " + $4.label + " with " + $4.type + " type is not a boolean");
 				}
 			}
 			| RAISE_FLAG TK_DO BLOCK TK_WHILE '(' EXPR ')' ';' LOWER_FLAG{
-				if($6.type == "bool"){
+				if ($6.type == "bool") {
 					string begin = getCurrentBeginLabelLoop();
 					string end = getCurrentEndLabelLoop();
 					string var = getNextVar();
@@ -306,14 +306,14 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK {
 						//"\t" + begin + ":\n" +
 						$3.transl +
 						"\tif (" + var + ") goto " + begin + ";\n";
-				}else{
+				} else {
 					// throw compile error
 					$$.type = "ERROR";
 					$$.transl = "ERROR";
 				}
 			}
 			| RAISE_FLAG TK_FOR '(' PUSH_SCOPE ATTRIBUTION ';'  EXPR ';' ATTRIBUTION ')' BLOCK LOWER_FLAG POP_SCOPE {
-				if($7.type == "bool"){
+				if ($7.type == "bool") {
 					string var = getNextVar();
 					string begin = getCurrentBeginLabelLoop();
 					string end = getCurrentEndLabelLoop();
@@ -329,12 +329,12 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK {
 					"\tgoto " + begin + ";\n" +
 					"\t" + end + ":\n";
 					
-				}else{
+				} else {
 					yyerror("The variable " + $7.label + " with " + $7.type + " type is not a boolean");
 				}
 			}
 			| RAISE_FLAG TK_SWITCH '(' EXPR ')' '{' CASE '}' {
-				if($4.type == "int"){
+				if ($4.type == "int") {
 					string var = getNextVar();
 					string begin = getBeginLabelLoop();
 					
@@ -407,7 +407,7 @@ CASE		: TK_CASE EXPR BLOCK CASE {
 LOOP_CONTROL_MECHANISMS : TK_CONTINUE {
 							int flag = getFlagOpenBlock();
 							
-							if(flag >= 1){
+							if (flag >= 1) {
 								string begin = getCurrentBeginLabelContinue();
 								$$.transl = "\tgoto " + begin + ";\n";
 							} else {
@@ -417,7 +417,7 @@ LOOP_CONTROL_MECHANISMS : TK_CONTINUE {
 						| TK_BREAK {
 							int flag = getFlagOpenBlock();
 							
-							if(flag >= 1){
+							if (flag >= 1) {
 								string end = getCurrentEndLabelLoopBreak();
 								$$.transl = "\tgoto " + end + ";\n";
 							} else {
@@ -483,7 +483,7 @@ ATTRIBUTION	: TYPE TK_ID '=' EXPR {
 						}
 					}
 				} else {
-					yyerror("Variable " + $2.label + " already exists");
+					yyerror("Variable " + $2.label + " already exists!");
 				}
 			}
 			| TK_GLOBAL TYPE TK_ID '=' EXPR {
@@ -511,7 +511,7 @@ ATTRIBUTION	: TYPE TK_ID '=' EXPR {
 					if (info != nullptr) {
 						// se tipo da expr for igual a do id
 						if (info->type == $9.type) {
-							if(info->type == "string"){
+							if (info->type == "string") {
 								string var = getNextVar();
 								$$.type = $3.type;
 								decls.push_back("\tchar " + var + "[" + to_string($3.label.size()+1) + "]" + ";");
@@ -544,7 +544,7 @@ ATTRIBUTION	: TYPE TK_ID '=' EXPR {
 						// se tipo da expr for igual a do id
 						cout << info->type << $6.type << endl;
 						if (info->type == $6.type) {
-							if(info->type == "string"){
+							if (info->type == "string") {
 								string var = getNextVar();
 								$$.type = $3.type;
 								decls.push_back("\tchar " + var + "[" + to_string($6.label.size()+1) + "]" + ";");
@@ -573,7 +573,7 @@ ATTRIBUTION	: TYPE TK_ID '=' EXPR {
 				if (info != nullptr) {
 					// se tipo da expr for igual a do id
 					if (info->type == $3.type) {
-						if(info->type == "string"){
+						if (info->type == "string") {
 							string var = getNextVar();
 							cout << $1.label<< endl;
 							$$.type = $3.type;
@@ -625,8 +625,8 @@ ATTRIBUTION_CONDITIONAL : TK_ID '=' '(' EXPR ')' TK_QUESTION TK_ID TK_ID {
 				var_info* info2 = findVar($7.label);
 				var_info* info3 = findVar($8.label);
 				
-				if($4.type == "bool"){
-					if(info != nullptr && info2 != nullptr && info3 != nullptr){
+				if ($4.type == "bool") {
+					if (info != nullptr && info2 != nullptr && info3 != nullptr) {
 						string var = getNextVar();
 						string endif = getEndLabel();
 						string endelse = getEndLabel();
@@ -657,7 +657,7 @@ DECLARATION : TYPE TK_ID {
 					
 					insertVar($2.label, {$1.transl, var});
 					
-					if($1.transl == "string"){
+					if ($1.transl == "string") {
 						decls.push_back("\tchar " + var + "[10000];");
 						
 						$$.transl = "\tstrcpy(" + var + "," + padraoMap[$1.transl] + ");\n";
@@ -710,7 +710,7 @@ DECLARATION : TYPE TK_ID {
 						
 						insertVar($2.label, {$1.transl, var, column, line});
 						
-						if($1.transl == "string"){
+						if ($1.transl == "string") {
 							decls.push_back("\tchar " + var + "[" + to_string(line*column) + "];");
 							$$.transl = "\t" + var + "[" + to_string(line*column) + "];\n";
 							
@@ -742,7 +742,7 @@ DECLARATION : TYPE TK_ID {
 						string var = getNextVar();
 						
 						insertVar($2.label, {$1.transl, var, column});
-						if($1.transl == "string"){
+						if ($1.transl == "string") {
 							decls.push_back("\tchar " + var + "[" + to_string(column) + "];");
 							$$.transl = "\t" + var + "[" + to_string(column) + "];\n";
 							
@@ -758,7 +758,7 @@ DECLARATION : TYPE TK_ID {
 							$$.type = $1.transl;
 						}
 					} else {
-						yyerror("Variable "+ $2.label + " already exists");
+						yyerror("Variable "+ $2.label + " already exists!");
 					}
 				} else {
 					yyerror("Invalid array line value");
@@ -769,13 +769,13 @@ DECLARATION : TYPE TK_ID {
 				int line = atoi(&$5.transl[6]);
 				int column = atoi(&$8.transl[6]);
 				
-				if (line != 0 && column != 0){
+				if (line != 0 && column != 0) {
 					if (info == nullptr) {
 						string var = getNextVar();
 						
 						insertGlobalVar($2.label, {$1.transl, var, column, line});
 						
-						if($1.transl == "string"){
+						if ($1.transl == "string") {
 							
 							decls.push_back("\tchar " + var + "[" + to_string( line*column ) + "]" + ";");
 							
@@ -809,7 +809,7 @@ DECLARATION : TYPE TK_ID {
 						string var = getNextVar();
 						
 						insertGlobalVar($3.label, {$2.transl, var, column});
-						if($1.transl == "string"){
+						if ($1.transl == "string") {
 							decls.push_back("\tchar " + var + "[" + to_string(column) + "];");
 							$$.transl = "\t" + var + "[" + to_string(column) + "];\n";
 							
@@ -836,16 +836,16 @@ DECLARATION : TYPE TK_ID {
 UNARIO	: TK_UNARIO TK_ID {
 				var_info* info = findVar($2.label);
 				
-				if (info != nullptr){
-					if (info->type == "int" || info->type == "float"){
+				if (info != nullptr) {
+					if (info->type == "int" || info->type == "float") {
 						$$.label = info->name;
 						$$.type = info->type;
 						$$.transl = 
 						"\t-" + info->name + ";\n";
-					}else{
+					} else {
 						yyerror("Variable " + $2.label + " type is a non-numeric");
 					}
-				}else{
+				} else {
 					yyerror("Variable" + $2.label + " does not exist!");
 				}
 			}
@@ -854,24 +854,24 @@ UNARIO	: TK_UNARIO TK_ID {
 INCREMENT	: TK_INCREMENT TK_ID {
 				var_info* info = findVar($2.label);
 				
-				if (info != nullptr){
-					if (info->type == "int"){
+				if (info != nullptr) {
+					if (info->type == "int") {
 						$$.label = info->name;
 						$$.type = info->type;
 						$$.transl = 
 						"\t" + info->name + " = " + info->name + " + 1;\n";
-					}else{
+					} else {
 						yyerror("Variable " + $2.label + " type is not integer");
 					}
-				}else{
+				} else {
 					yyerror("Variable " + $2.label + " does not exist");
 				}
 			}
 			| TK_ID TK_INCREMENT {
 				var_info* info = findVar($1.label);
 				
-				if(info != nullptr) {
-					if(info->type == "int"){
+				if (info != nullptr) {
+					if (info->type == "int") {
 						string var = getNextVar();
 						
 						decls.push_back("\tint " + var + ";");
@@ -883,7 +883,7 @@ INCREMENT	: TK_INCREMENT TK_ID {
 					} else{
 						yyerror("Variable " + $2.label + " type is not integer");
 					}
-				}else{
+				} else {
 					yyerror("Variable" + $2.label + " does not exist");
 				}
 			}
@@ -892,24 +892,24 @@ INCREMENT	: TK_INCREMENT TK_ID {
 DECREMENT	: TK_DECREMENT TK_ID {
 				var_info* info = findVar($2.label);
 				
-				if (info != nullptr){
-					if (info->type == "int"){
+				if (info != nullptr) {
+					if (info->type == "int") {
 						$$.label = info->name;
 						$$.type = info->type;
 						$$.transl =
 						"\t" + info->name + " = " + info->name + " - 1;\n";
-					}else{
+					} else {
 						yyerror("Variable " + $2.label + " type is not integer");
 					}
-				}else{
+				} else {
 					yyerror("Variable " + $2.label + " does not exist");
 				}
 			}
 			| TK_ID TK_DECREMENT {
 				var_info* info = findVar($1.label);
 				
-				if(info != nullptr){
-					if(info->type == "int"){
+				if (info != nullptr) {
+					if (info->type == "int") {
 						string var = getNextVar();
 						
 						decls.push_back("\tint " + var + ";");
@@ -918,10 +918,10 @@ DECREMENT	: TK_DECREMENT TK_ID {
 						$$.type = info->type;
 						$$.transl = "\t" + var + " = " + info->name + " - 1;\n" +
 						"\t" + info->name + " = " + var + ";\n";
-					}else{
+					} else {
 						yyerror("Variable " + $2.label + " type is not integer");
 					}
-				}else{
+				} else {
 					yyerror("Variable " + $2.label + " does not exist");
 				}
 			}
@@ -930,64 +930,64 @@ DECREMENT	: TK_DECREMENT TK_ID {
 OP_COMPOUND : TK_ID TK_MORE_EQUAL EXPR {
 				var_info* info = findVar($1.label);
 				
-				if(info != nullptr){
-					if(info->type == $3.type){
+				if (info != nullptr) {
+					if (info->type == $3.type) {
 						$$.type = info->type;
 						$$.label = info->name;
 						$$.transl = $1.transl + $3.transl +
 						"\t" + info->name + " = " + info->name + " + " + $3.label + ";\n";
-					}else{
+					} else {
 						yyerror("Variable " + $1.label + " type different from the plus '" + $3.label + "' value!");
 					}
-				}else{
+				} else {
 					yyerror("Variable " + $1.label + " does not exist!");
 				}
 			}
 			| TK_ID TK_LESS_EQUAL EXPR {
 				var_info* info = findVar($1.label);
 				
-				if(info != nullptr){
-					if(info->type == $3.type){
+				if (info != nullptr) {
+					if (info->type == $3.type) {
 						$$.type = info->type;
 						$$.label = info->name;
 						$$.transl = $1.transl + $3.transl +
 						"\t" + info->name + " = " + info->name + " - " + $3.label + ";\n";
-					}else{
+					} else {
 						yyerror("Variable " + $1.label + " type different from the plus '" + $3.label + "' value!");
 					}
-				}else{
+				} else {
 					yyerror("Variable " + $1.label + " does not exist!");
 				}
 			}
 			| TK_ID TK_MULTIPLY_EQUAL EXPR {
 				var_info* info = findVar($1.label);
 				
-				if(info != nullptr){
-					if(info->type == $3.type){
+				if (info != nullptr) {
+					if (info->type == $3.type) {
 						$$.type = info->type;
 						$$.label = info->name;
 						$$.transl = $1.transl + $3.transl +
 						"\t" + info->name + " = " + info->name + " * " + $3.label + ";\n";
-					}else{
+					} else {
 						yyerror("Variable " + $1.label + " type different from the plus '" + $3.label + "' value!");
 					}
-				}else{
+				} else {
 					yyerror("Variable " + $1.label + " does not exist!");
 				}
 			}
 			| TK_ID TK_DIVIDE_EQUAL EXPR {
 				var_info* info = findVar($1.label);
 				
-				if(info != nullptr){
-					if(info->type == $3.type){
+				if (info != nullptr) {
+					if (info->type == $3.type) {
 						$$.type = info->type;
 						$$.label = info->name;
 						$$.transl = $1.transl + $3.transl +
 						"\t" + info->name + " = " + info->name + " / " + $3.label + ";\n";
-					}else{
+					} else {
 						yyerror("Variable " + $1.label + " type different from the plus '" + $3.label + "' value!");
 					}
-				}else{
+				} else {
 					yyerror("Variable " + $1.label + " does not exist");
 				}
 			}
@@ -1376,12 +1376,12 @@ EXPR 		: EXPR '+' EXPR {
 			| EXPR TK_AND EXPR {
 				string var = getNextVar();
 				
-				if($1.type == "bool" && $3.type == "bool"){
+				if ($1.type == "bool" && $3.type == "bool") {
 					decls.push_back("\t" + $$.type + " " + var + ";");
 					$$.transl = $1.transl + $3.transl + 
 						"\t" + var + " = " + $1.label + " && " + $3.label + ";\n";
 					$$.label = var;
-				}else{
+				} else {
 					// throw compile error
 					$$.type = "ERROR";
 					$$.transl = "ERROR";
@@ -1390,12 +1390,12 @@ EXPR 		: EXPR '+' EXPR {
 			| EXPR TK_OR EXPR {
 				string var = getNextVar();
 				
-				if($1.type == "bool" && $3.type == "bool"){
+				if ($1.type == "bool" && $3.type == "bool") {
 					decls.push_back("\t" + $$.type + " " + var + ";");
 					$$.transl = $1.transl + $3.transl + 
 						"\t" + var + " = " + $1.label + " || " + $3.label + ";\n";
 					$$.label = var;
-				}else{
+				} else{
 					// throw compile error
 					$$.type = "ERROR";
 					$$.transl = "ERROR";
@@ -1404,12 +1404,12 @@ EXPR 		: EXPR '+' EXPR {
 			| TK_NOT EXPR {
 				string var = getNextVar();
 				
-				if($2.type == "bool"){
+				if ($2.type == "bool") {
 					decls.push_back("\t" + $$.type + " " + var + ";");
 					$$.transl = $2.transl + 
 						"\t" + var + " =  ! " + $2.label + ";\n";
 					$$.label = var;
-				}else{
+				} else {
 					// throw compile error
 					$$.type = "ERROR";
 					$$.transl = "ERROR";
@@ -1555,7 +1555,7 @@ VALUE		: TK_NUM {
 					$$.transl = "";
 				} else {
 					// throw compile error
-					yyerror("Variável " + $1.label + "Já existe");
+					yyerror("Variable " + $1.label + " already exists!");
 				}
 			}
 			;
@@ -1595,7 +1595,7 @@ int main(int argc, char* argv[]) {
 	return 0;
 }
 
-void yyerror( string MSG ) {
+void yyerror(string MSG ) {
 	cout << MSG << endl;
 	exit (0);
 }
@@ -1605,7 +1605,6 @@ string getNextVar() {
     return "t" + to_string(tempGen++);
 }
 
-
 string getCurrentVar() {
     return "t" + to_string(tempGen);
 }
@@ -1614,7 +1613,7 @@ string getBeginLabel() {
 	return "BEGIN" + to_string(beginGen++);
 }
 
-string getPrevBeginLabel () {
+string getPrevBeginLabel() {
 	return "BEGIN" + to_string(beginGen--);
 }
 
@@ -1626,11 +1625,11 @@ string getBeginLabelLoop() {
 	return "BEGINLOOP" + to_string(beginGenLoop++);
 }
 
-string getPrevBeginLabelLoop () {
+string getPrevBeginLabelLoop() {
 	return "BEGINLOOP" + to_string(beginGenLoop--);
 }
 
-string getCurrentBeginLabelLoop () {
+string getCurrentBeginLabelLoop() {
 	return "BEGINLOOP" + to_string(beginGenLoop);
 }
 
@@ -1638,7 +1637,7 @@ void setBeginLabelLoop(int update) {
 	beginGenLoop = update;
 }
 
-string getCurrentBeginLabelContinue () {
+string getCurrentBeginLabelContinue() {
 	int temp = beginGenLoop;
 	temp--;
 	return "BEGINLOOP" + to_string(temp);
@@ -1656,7 +1655,7 @@ string getEndLabelLoop() {
 	return "ENDLOOP" + to_string(endGenLoop++);
 }
 
-string getPrevEndLabelLoop () {
+string getPrevEndLabelLoop() {
 	return "ENDLOOP" + to_string(endGenLoop--);
 }
 
@@ -1674,15 +1673,15 @@ string getCurrentEndLabelLoopBreak() {
 	return "ENDLOOP" + to_string(temp);
 }
 
-void trueFlagOpenBlock () {
+void trueFlagOpenBlock() {
 	openBlock += 1;
 }
 
-void falseFlagOpenBlock () {
+void falseFlagOpenBlock() {
 	openBlock -= 1;
 }
 
-int getFlagOpenBlock () {
+int getFlagOpenBlock() {
 	return openBlock;
 }
 
